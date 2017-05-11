@@ -2,8 +2,8 @@ var _bBeforeRow = function(a_group){
     //console.log(a_group);
     var a_groupArr = a_group.split('\n');
     var defineInsert_delete = 'DEFINE\n' + 
-                              blanks_4 + 'l_allow_insert' + blanks_8 + 'SMALLINT,\n' + 
-                              blanks_4 + 'l_allow_delete' + blanks_8 + 'SMALLINT,';
+                              blanks_4 + 'l_allow_insert' + blanks_8 + 'LIKE type_file.num5,\n' + 
+                              blanks_4 + 'l_allow_delete' + blanks_8 + 'LIKE type_file.num5,';
     var clean_g_ction = '\n' + blanks_4 + 'LET g_action=""\n';
 
     var normalAttribute = 'ATTRIBUTE(COUNT=程式變數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
@@ -72,7 +72,7 @@ var _bBeforeRow = function(a_group){
             continue;
         }
         if(a_groupArr[i].match(/HELP \d+/g) !== null){
-            a_groupArr[i] = '#' + a_groupArr[i];
+            a_groupArr[i] = a_groupArr[i].replace(/HELP \d+/g,'');
             newGroupArr.push(a_groupArr[i]);
             continue;
         }

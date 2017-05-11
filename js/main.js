@@ -6,6 +6,7 @@ var blanks_12 = '            ';
 var fileCode;
 var hasBpFunc = false;
 var has_b_askkey = false;
+var hasCallMenu = false;//用在g_lang
 
 var variables = {
     dynamicArrOfRecs: [],
@@ -138,6 +139,7 @@ var groupLines = function(lines){
     var groupStartIdx = {
         arrayChar: 0,
         g_lang: 0,
+        if_g_lang: 0,
         _pageNo: 0,
         inputArray: 0,
         _bpD: 0,
@@ -178,7 +180,7 @@ var groupLines = function(lines){
             }
             continue;
         }
-        if(lines[i].match(/WHEN\sg_lang=('|")0/g) !== null){//g_lang
+        if(lines[i].match(/WHEN\sg_lang[\s\=]+('|")0/g) !== null){//WHEN g_lang='0'
             groupStartIdx.g_lang = i-1;
             var lastGroupOfLinegroup = linegroup[linegroup.length-1];
             linegroup[linegroup.length-1] = lastGroupOfLinegroup.replace('CASE','');//清除上一行已經加入lineGroup的句子
@@ -190,6 +192,19 @@ var groupLines = function(lines){
                 linegroup.push(g_lang + ' #case g_lang');
                 //console.log('g_lang',g_lang);
                 groupStartIdx.g_lang = 0;
+            }
+            continue;
+        }
+        if(lines[i].match(/IF\s+g_lang[\s\=]+('|")0('|")\s+THEN/g) !== null){//IF g_lang='0'
+            groupStartIdx.if_g_lang = i;
+            continue;
+        }
+        if(groupStartIdx.if_g_lang !== 0){
+            if(lines[i].includes('END IF')){
+                var if_g_lang = pushGroup(lines, groupStartIdx.if_g_lang, i);
+                linegroup.push(if_g_lang + ' #case g_lang');
+                //console.log('g_lang',g_lang);
+                groupStartIdx.if_g_lang = 0;
             }
             continue;
         }
@@ -322,4 +337,5 @@ var clearData = function(){
     hasBpFunc = false;//hasBpFunc回到預設的false
     has_b_askkey = false;//has_b_askkey回到預設的false
     addExportToExcel = false;//addExportToExcel回到預設的false
+    hasCallMenu = false;
 }

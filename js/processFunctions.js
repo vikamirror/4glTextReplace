@@ -27,9 +27,12 @@ var clearForm = function(a_group){
 var g_langCase = function(a_group){
     a_group = commentOut(a_group);
     a_group = a_group.replace(/#case g_lang/g,'');
-    var callMenu =  a_group.match(/[a-z]\d{1,4}_menu\(\)/g)[0];
-    a_group = a_group + '\n' + blanks_4 + 'CALL ' + callMenu;
-    //console.log('g_langCase',a_group);
+    //console.log(a_group);
+    if(hasCallMenu === false){
+        var callMenu =  a_group.match(/[\w\d]+_menu\(\)/g)[0];
+        a_group = a_group + '\n' + blanks_4 + 'CALL ' + callMenu;
+        hasCallMenu = true;
+    }
 	return a_group;
 }
 
