@@ -19,6 +19,10 @@ var menuWtihoutBp = function(a_group){
     var groupArr =  a_group.split('\n');
     var newGroupArr = [];
     for(var i=0; i<groupArr.length; i++){
+        if(groupArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/g) !== null){
+            
+            
+        }
         if(groupArr[i].match(/COMMAND\s('|")(\d|\w+).\S+/g) !== null){     
             if(groupArr[i].match(/COMMAND\s('|")Q.\S+/g) !== null){//query
                 var onAction_gAction = 'ON ACTION query' + '\n' +

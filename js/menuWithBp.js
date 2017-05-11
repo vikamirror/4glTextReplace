@@ -2,6 +2,8 @@ var menuCommands = [];
 var menuHotKeys = [];
 var hasExitWhile = false;
 var addExportToExcel = false;
+var hasHideOption = false;
+var beforeMenuString = '';
 
 var menuWtihBpFunc = function(a_group){
     //console.log(a_group);
@@ -10,6 +12,7 @@ var menuWtihBpFunc = function(a_group){
     var menuGroup = [];
     var menuGroupIdx = {
         //startMenu: 0,
+        startBeforeMenu: 0,
         startDetail: 0,
         startInterrupt: 0,
         startControln: 0,
@@ -44,7 +47,19 @@ var menuWtihBpFunc = function(a_group){
             newGroupArr.push(aline);
             continue;
         }
+        if(groupArr[i].match(/BEFORE MENU/g) !== null){//BEFORE MENU
+            menuGroupIdx.startBeforeMenu = i;
+            continue;
+        }
         if(groupArr[i].match(/COMMAND\s('|")(\d|\w+).\S+/g) !== null){//一般
+            if(menuGroupIdx.startBeforeMenu !== 0){
+                var beforeMenu = pushGroup(groupArr, menuGroupIdx.startBeforeMenu, i-1);//碰到第一個COMMAND before menu結束
+                beforeMenuString = beforeMenu;
+                beforeMenu = commentOut(beforeMenu);
+                newGroupArr.push(beforeMenu);   
+                hasHideOption = true;
+                menuGroupIdx.startBeforeMenu = 0; 
+            }
             if(groupArr[i].match(/COMMAND\s('|")Q.\W+HELP\s\d+/g) !== null){//query
                 var aline = groupArr[i].replace(/COMMAND\s('|")Q.\W+HELP\s\d+/g, 'WHEN "query"');
                 newGroupArr.push(aline);
@@ -222,6 +237,10 @@ var menuWtihBpFunc = function(a_group){
             }
         }
         //以下是需要加工的判斷式
+        if(menuGroupIdx.startBeforeMenu !== 0){
+            //BEFORE MENU開始,到下一個COMMAND之前,都不要push任何行數
+            continue;
+        }
         if(menuGroupIdx.startDetail !== 0){//detail加上ELSE LET g_action="" END IF
             if(groupArr[i].match(/END IF/g) !== null){
                 var elseGAction = 'ELSE LET g_action="" END IF';
@@ -278,6 +297,26 @@ function isCommentOut(group,command){//COMMAND沒有註解的話,才能加入bp
     }
 }
 
+function getBeforeDisplay(){
+    beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
+    //console.log(beforeMenuString);
+    var newBeforeDisplay = [];
+    var beforeMenuArr = beforeMenuString.split('\n');
+    for(var i=0;i<beforeMenuArr.length;i++){
+        if(beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/g) !== null){
+            var cl_set_action = '\n' + blanks_12 + 'CALL cl_set_action(請先自行填寫,FALSE)';
+            var markOption = '#' + beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/)[0];
+            beforeMenuArr[i] = beforeMenuArr[i].replace(/HIDE\s+OPTION\s+('|")\S+('|")/g,markOption + cl_set_action);
+            newBeforeDisplay.push(beforeMenuArr[i]);
+            continue;
+        }
+        newBeforeDisplay.push(beforeMenuArr[i]);
+    }
+    newBeforeDisplay = newBeforeDisplay.join('\n');
+    //console.log(newBeforeDisplay);
+    return newBeforeDisplay;
+}
+
 var _bpFunc = function(a_group){
 
     var a_groupArr =  a_group.split('\n');
@@ -300,6 +339,9 @@ var _bpFunc = function(a_group){
                   'CALL cl_set_act_visible("accept,cancel", FALSE)' + '\n' + blanks_4 +
                   'DISPLAY ARRAY g_程式變數 TO s_程式變數.* ATTRIBUTE(COUNT=單身筆數, DOUBLECLICK=SELECT, UNBUFFERED)' + '\n';
     
+    var newBeforeDisplay = getBeforeDisplay();
+    //console.log(newBeforeDisplay);
+
     var beforeRow = blanks_4 + 
                     'BEFORE ROW' + '\n' + blanks_8 +
                     'LET l_ac=ARR_CURR()' + '\n';
@@ -375,6 +417,9 @@ var _bpFunc = function(a_group){
     newGroupArr.push('FUNCTION '+fileCode+'_bp(p_ud)');
     newGroupArr.push(newCode);
     newGroupArr.push(g_s_record);
+    if(hasHideOption === true){
+        newGroupArr.push(newBeforeDisplay);
+    }
     newGroupArr.push(beforeRow);
     newGroupArr.push(onActions);
     newGroupArr.push(displayIDLE);
@@ -404,3 +449,4 @@ function orderHotKeys(a,b){
         return 1;
     }
 }
+
