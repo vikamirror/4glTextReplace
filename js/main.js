@@ -338,6 +338,6 @@ var clearData = function(){
     has_b_askkey = false;//has_b_askkey回到預設的false
     addExportToExcel = false;//addExportToExcel回到預設的false
     hasCallMenu = false;
-    hasHideOption = false;
+    hasHideOption = false;//BeforeMenu有沒有Hide Option
     beforeMenuString = '';
 }

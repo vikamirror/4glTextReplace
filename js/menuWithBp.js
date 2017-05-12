@@ -13,7 +13,7 @@ var menuWtihBpFunc = function(a_group){
     if(groupByCommand[groupByCommand.length-1].match(/END MENU\nEND FUNCTION/g) !== null){
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU\nEND FUNCTION/g,'');
     }
-    //console.log(groupByCommand);
+    //console.log(groupByCommand.join('\n'));
     var newMenu = [];
     for(var i=0; i<groupByCommand.length; i++){
         if(groupByCommand[i].match(/MENU\s('|"){2}/g) !== null){//如果有MENU ""
@@ -122,12 +122,15 @@ var menuWtihBpFunc = function(a_group){
             menuCommands.push('exit');
             continue;
         }
-        if(groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g) !== null){//其它
-            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g)[0];
-            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\W+('|")/g, 'WHEN '+userDefined);
+        if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,30}('|")/g) !== null){//其它
+            if(groupByCommand[i].match(/HELP\s+\d+/g) !== null){
+                groupByCommand[i] = groupByCommand[i].replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
+            }
+            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,30}('|")/g)[0];
+            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,30}('|")/g, 'WHEN '+userDefined);
             newMenu.push(others);
             var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
-            menuCommands.push('trimUserDefined');
+            menuCommands.push(trimUserDefined);
             continue;
         }
         if(groupByCommand[i].match(/KEY\(esc\)/g) !== null){//KEY(esc)
@@ -170,6 +173,7 @@ var menuWtihBpFunc = function(a_group){
     var end = blanks_4 + 'END CASE' + '\n' + blanks_1 + 'END WHILE\n' + 'END FUNCTION';
     newMenu.push(end);
     newMenu = newMenu.join('\n');
+    //console.log(newMenu);
     return newMenu;
 }
 

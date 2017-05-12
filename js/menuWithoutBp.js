@@ -13,7 +13,7 @@ var menuWtihoutBp = function(a_group){
     if(groupByCommand[groupByCommand.length-1].match(/END MENU\nEND FUNCTION/g) !== null){
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU\nEND FUNCTION/g,'');
     }
-    //console.log(groupByCommand.join('\n'));
+    console.log(groupByCommand.join('\n'));
     var newMenu = [];
     for(var i=0; i<groupByCommand.length; i++){
        if(groupByCommand[i].match(/KEY\(F3\)/g) !== null){//熱鍵f3 忽略
