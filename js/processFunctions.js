@@ -17,7 +17,7 @@ var clearForm = function(a_group){
     //console.log('clearForm',a_group);
     if(variables.dynamicArrOfRecs.length > 0){
         for(var i=0; i<variables.dynamicArrOfRecs.length; i++){
-            a_group = a_group + '\n' + blanks_8 + 'CALL ' + variables.dynamicArrOfRecs[i] + '.clear()\n'
+            a_group = a_group + '\r\n' + blanks_8 + 'CALL ' + variables.dynamicArrOfRecs[i] + '.clear()\r\n'
         }
     }    
     //console.log(a_group);
@@ -30,14 +30,14 @@ var g_langCase = function(a_group){
     //console.log(a_group);
     if(hasCallMenu === false){
         var callMenu =  a_group.match(/[\w\d]+_menu\(\)/g)[0];
-        a_group = a_group + '\n' + blanks_4 + 'CALL ' + callMenu;
+        a_group = a_group + '\r\n' + blanks_4 + 'CALL ' + callMenu;
         hasCallMenu = true;
     }
 	return a_group;
 }
 
 var openWindow = function(a_group){
-    var cl_ui_init = '\n' + blanks_4 + 'CALL cl_ui_init()' + '\n';
+    var cl_ui_init = '\r\n' + blanks_4 + 'CALL cl_ui_init()' + '\r\n';
     a_group = a_group.replace(/#main window/g,'');
     a_group = a_group.replace(/ATTRIBUTE\(\S+\)/g, '#ATTRIBUTE' + cl_ui_init);
     //console.log(a_group);
@@ -45,7 +45,7 @@ var openWindow = function(a_group){
 }
 
 var outFunc = function(a_group){
-    var outFuncLines = a_group.split('\n');
+    var outFuncLines = a_group.split('\r\n');
     for(var i=0; i<outFuncLines.length; i++){
         if(outFuncLines[i].match(/l_za\d+\w+\s+CHAR\(\d+\)/g) !== null){
             //console.log(outFuncLines[i]);
@@ -57,16 +57,16 @@ var outFunc = function(a_group){
         }
         if(outFuncLines[i].includes('START REPORT')){
             outFuncLines[i] = 
-                '\n'+'    CALL fgl_report_configureCompatibilityOutput(80,"Monospaced",TRUE,"","","")' +
-                '\n'+'    CALL fgl_report_selectPreview("TRUE"))' +
-                '\n'+'    CALL CALL fgl_report_selectDevice("PDF")' +
-                '\n'+outFuncLines[i];
+                '\r\n'+'    CALL fgl_report_configureCompatibilityOutput(80,"Monospaced",TRUE,"","","")' +
+                '\r\n'+'    CALL fgl_report_selectPreview("TRUE"))' +
+                '\r\n'+'    CALL CALL fgl_report_selectDevice("PDF")' +
+                '\r\n'+outFuncLines[i];
         }
         if(outFuncLines[i].includes('FINISH REPORT')){
-            outFuncLines[i] = outFuncLines[i] + '\n' + '   CALL fgl_report_stopGraphicalCompatibilityMode()';
+            outFuncLines[i] = outFuncLines[i] + '\r\n' + '   CALL fgl_report_stopGraphicalCompatibilityMode()';
         }
     }
-    a_group = outFuncLines.join('\n');
+    a_group = outFuncLines.join('\r\n');
     return a_group;
 }
 
@@ -98,30 +98,30 @@ var commentOutArrow = function(a_group){
 }
 
 var onIdle_endInput = function(a_group){  
-    var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' + blanks_8 + 'CONTINUE INPUT\n' + blanks_4 + 'END INPUT';
+    var onIdle = '\r\n' + blanks_4 + 'ON IDLE g_idle\r\n' + blanks_8 + 'CALL cl_on_idle()\r\n' + blanks_8 + 'CONTINUE INPUT\r\n' + blanks_4 + 'END INPUT';
     a_group = a_group.replace(/END INPUT/g, onIdle);
     //console.log(a_group);
     return a_group;
 }
 
 var onIdle_construct = function(a_group){
-    var a_groupArr =  a_group.split('\n');
+    var a_groupArr =  a_group.split('\r\n');
     for(var i=0; i<a_groupArr.length; i++){
         if(a_groupArr[i].includes('INT_FLAG')){
             a_groupArr[i] = 
-                '   ON IDLE g_idle' + '\n' +
-                '      CALL cl_on_idle()' + '\n' +
-                '      CONTINUE CONSTRUCT' + '\n' +
-                '   END CONSTRUCT' + '\n' +
-                a_groupArr[i] + '\n';
+                '   ON IDLE g_idle' + '\r\n' +
+                '      CALL cl_on_idle()' + '\r\n' +
+                '      CONTINUE CONSTRUCT' + '\r\n' +
+                '   END CONSTRUCT' + '\r\n' +
+                a_groupArr[i] + '\r\n';
         }
     }
-    a_group = a_groupArr.join('\n');
+    a_group = a_groupArr.join('\r\n');
     return a_group;
 }
 
 var onIdle_prompt = function(a_group){
-    var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' +  blanks_8 + 'END PROMPT\n';
+    var onIdle = '\r\n' + blanks_4 + 'ON IDLE g_idle\r\n' + blanks_8 + 'CALL cl_on_idle()\r\n' +  blanks_8 + 'END PROMPT\r\n';
     a_group = a_group + onIdle;
     //console.log(a_group);
     return a_group;
@@ -178,13 +178,13 @@ var dryCleaningForLoop = function(a_group){
         a_group = commentOut(a_group);
         //console.log(a_group);
     }
-    a_group = a_group + '\n' + blanks_4 + 'CALL ' + clearRecord + '.clear()';
+    a_group = a_group + '\r\n' + blanks_4 + 'CALL ' + clearRecord + '.clear()';
     //console.log(a_group);
     return a_group;
 }
 
 var _b_fillFunc = function(a_group){
-    var a_groupArr =  a_group.split('\n');
+    var a_groupArr =  a_group.split('\r\n');
     var groupStartIdx = {
         oldForLoop: 0,
     }
@@ -206,22 +206,22 @@ var _b_fillFunc = function(a_group){
             continue;
         }
         if(a_groupArr[i].match(/FOREACH\s\w+\sINTO/g) !== null){
-            a_groupArr[i] = 'CALL ' + dynamicArrOfRecVariable + '.clear()' + '\n' + a_groupArr[i];
+            a_groupArr[i] = 'CALL ' + dynamicArrOfRecVariable + '.clear()' + '\r\n' + a_groupArr[i];
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
         if(a_groupArr[i].includes('END FOREACH')){
-            a_groupArr[i] = a_groupArr[i] + '\n' + 'CALL '+ dynamicArrOfRecVariable +'.deleteElement(g_cnt)' + '\n';
+            a_groupArr[i] = a_groupArr[i] + '\r\n' + 'CALL '+ dynamicArrOfRecVariable +'.deleteElement(g_cnt)' + '\r\n';
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
         newGroupArr.push(a_groupArr[i]);
     }
-    a_group = newGroupArr.join('\n');
+    a_group = newGroupArr.join('\r\n');
     return a_group;
 }
 
 function commentOut(string){
-    return '{' + '\n' + string + '\n' + '}';
+    return '{' + '\r\n' + string + '\r\n' + '}';
 }
 

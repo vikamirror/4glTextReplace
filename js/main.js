@@ -30,7 +30,7 @@ var setUpReader = function(file){
         //fileCodeRepository = fileCode;
         var fileText = fileReader.result; 
         var readLineArr = readLine(fileText);
-        var fileText_after = readLineArr.join('\n');
+        var fileText_after = readLineArr.join('\r\n');
         
         //console.log(fileText_after);
         clearData();
@@ -42,7 +42,7 @@ var setUpReader = function(file){
 
 //逐行讀取
 var readLine = function(fileText){
-    var lines = fileText.split('\n');
+    var lines = fileText.split('\r\n');
     var linegroup = groupLines(lines);
     var newLines = [];
     for(var i=0; i<linegroup.length; i++){
@@ -324,7 +324,7 @@ var pushGroup = function(lines, groupStartIdx, i){
     var aGroup = '';
 
     for(var j=groupStartIdx; j<i+1; j++){
-        aGroup += lines[j] + '\n';
+        aGroup += lines[j] + '\r\n';
     }
     return aGroup;
 }
