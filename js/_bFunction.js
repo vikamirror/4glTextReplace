@@ -6,11 +6,11 @@ var _bBeforeRow = function(a_group){
                               blanks_4 + 'l_allow_delete' + blanks_8 + 'LIKE type_file.num5,';
     var clean_g_ction = '\n' + blanks_4 + 'LET g_action=""\n';
 
-    var normalAttribute = 'ATTRIBUTE(COUNT=程式變數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
+    var normalAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
                           'INSERT ROW=TRUE, DELETE ROW=TRUE, APPEND ROW=TRUE)\n' + blanks_4 + 
                           'BEFORE ROW';
 
-    var hasAuthorityCheckAttribute = 'ATTRIBUTE(COUNT=程式變數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
+    var hasAuthorityCheckAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
                                      'INSERT ROW=l_allow_insert, DELETE ROW=l_allow_delete, APPEND ROW=l_allow_insert)\n' + blanks_4 + 
                                      'BEFORE ROW';
 

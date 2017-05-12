@@ -7,328 +7,211 @@ var beforeMenuString = '';
 
 var menuWtihBpFunc = function(a_group){
     //console.log(a_group);
-    var groupArr =  a_group.split('\n');
-    
-    var menuGroup = [];
-    var menuGroupIdx = {
-        //startMenu: 0,
-        startBeforeMenu: 0,
-        startDetail: 0,
-        startInterrupt: 0,
-        startControln: 0,
+    var groupByCommand = a_group.split('COMMAND');//用COMMAND來分組
+
+    //因為不知道END MENU END FUNCTION在哪個COMMAND,於是先清空,迴圈跑完再補上
+    if(groupByCommand[groupByCommand.length-1].match(/END MENU\nEND FUNCTION/g) !== null){
+        groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU\nEND FUNCTION/g,'');
     }
-    
-    // for(var i=0; i<groupArr.length; i++){
-    //     if(groupArr[i].match(/MENU\s('|"){2}/g) !== null){
-    //         menuGroupIdx.startMenu = i;
-    //         continue;
-    //     }
-    //     if(menuGroup.startMenu !== 0){
-    //         if(groupArr[i].includes('END MENU')){
-    //             var menu = pushGroup(groupArr, menuGroupIdx.startMenu, i);
-    //             menuGroup.push(menu);
-    //             menuGroupIdx.startMenu = 0;
-    //             continue;
-    //         }
-    //     }
-    // }
-
-    // var originMenu = commentOut(menuGroup.join('\n'));
-
-    var newGroupArr = [];
-    var hotKeyBegin = false;
-
-    for(var i=0; i<groupArr.length; i++){
-        if(groupArr[i].match(/MENU\s('|"){2}/g) !== null){
+    //console.log(groupByCommand);
+    var newMenu = [];
+    for(var i=0; i<groupByCommand.length; i++){
+        if(groupByCommand[i].match(/MENU\s('|"){2}/g) !== null){//如果有MENU ""
             var whileTrue = 'WHILE TRUE' + '\n' + 
                             blanks_4 + 'CALL ' + fileCode + '_bp("G")' + '\n' + 
                             blanks_4 + 'CASE g_action' + '\n';
-            var aline = groupArr[i].replace(/MENU\s('|"){2}/g, whileTrue);
-            newGroupArr.push(aline);
-            continue;
-        }
-        if(groupArr[i].match(/BEFORE MENU/g) !== null){//BEFORE MENU
-            menuGroupIdx.startBeforeMenu = i;
-            continue;
-        }
-        if(groupArr[i].match(/COMMAND\s('|")(\d|\w+).\S+/g) !== null){//一般
-            if(menuGroupIdx.startBeforeMenu !== 0){
-                var beforeMenu = pushGroup(groupArr, menuGroupIdx.startBeforeMenu, i-1);//碰到第一個COMMAND before menu結束
+            var head;
+            var beforeMenu = '';
+            if(groupByCommand[i].match(/BEFORE MENU/g) !== null){//有BEFORE MENU
+                head = groupByCommand[i].split('BEFORE MENU')[0];//用BEFORE MENU切割
+                beforeMenu = blanks_4 + 'BEFORE MENU\n' + groupByCommand[i].split('BEFORE MENU')[1];
                 beforeMenuString = beforeMenu;
+            }else{
+                head = groupByCommand[i];
+            }
+            head = head.replace(/MENU\s('|"){2}/g, whileTrue);    
+            //console.log(head);
+            newMenu.push(head);
+            if(beforeMenu !== ''){
                 beforeMenu = commentOut(beforeMenu);
-                newGroupArr.push(beforeMenu);   
-                hasHideOption = true;
-                menuGroupIdx.startBeforeMenu = 0; 
-            }
-            if(groupArr[i].match(/COMMAND\s('|")Q.\W+HELP\s\d+/g) !== null){//query
-                var aline = groupArr[i].replace(/COMMAND\s('|")Q.\W+HELP\s\d+/g, 'WHEN "query"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'query');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")B.\W+HELP\s\d+/g) !== null){//detail
-                var aline = groupArr[i].replace(/COMMAND\s('|")B.\W+HELP\s\d+/g, 'WHEN "detail"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'detail');
-                menuGroupIdx.startDetail = i;
-                addExportToExcel = true;
-                continue;
-            }
-            if(menuGroupIdx.startDetail !== 0){
-                if(groupArr[i].match(/END IF/g) !== null){//detail end if
-                    //console.log('END IF', groupArr[i]);
-                    menuGroupIdx.startDetail = 0;
-                }
-                newGroupArr.push(groupArr[i]);
-                continue;
-            }
-            if(addExportToExcel === true){//如果有detail的話,要加上exportToExcel的按鈕
-                var exporttoexcel = blanks_6 + 'WHEN "exporttoexcel"\n' +
-                                    blanks_8 + "IF cl_prichk('O') THEN\n" +
-                                    blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
-                                    blanks_8 + 'END IF\n';
-                newGroupArr.push(exporttoexcel);
-                menuCommands.push('exporttoexcel');
-                addExportToExcel = false;
-                //continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")A.\W+HELP\s\d+/g) !== null){//add
-                var aline = groupArr[i].replace(/COMMAND\s('|")A.\W+HELP\s\d+/g, 'WHEN "add"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'add');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")U.\W+HELP\s\d+/g) !== null){//modify
-                var aline = groupArr[i].replace(/COMMAND\s('|")U.\W+HELP\s\d+/g, 'WHEN "modify"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'modify');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")C.\W+HELP\s\d+/g) !== null){//reproduce
-                var aline = groupArr[i].replace(/COMMAND\s('|")C.\W+HELP\s\d+/g, 'WHEN "reproduce"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'reproduce');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")R.\W+HELP\s\d+/g) !== null){//remove
-                var aline = groupArr[i].replace(/COMMAND\s('|")R.\W+HELP\s\d+/g, 'WHEN "remove"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'remove');
-                //menuCommands.push('remove');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")O.\W+HELP\s\d+/g) !== null){//output
-                var aline = groupArr[i].replace(/COMMAND\s('|")O.\W+HELP\s\d+/g, 'WHEN "output"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'output');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")H.\W+HELP\s\d+/g) !== null){//about
-                var aline = groupArr[i].replace(/COMMAND\s('|")H.\W+HELP\s\d+/g, 'WHEN "about"');
-                newGroupArr.push(aline);
-                isCommentOut(groupArr[i],'about');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")N.\W+HELP\s\d+/g) !== null){//next
-                var aline = groupArr[i].replace(/COMMAND\s('|")N.\W+HELP\s\d+/g, 'WHEN "next"');
-                newGroupArr.push(aline);
-                menuHotKeys.push('next');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")P.\W+HELP\s\d+/g) !== null){//previous
-                var aline = groupArr[i].replace(/COMMAND\s('|")P.\W+HELP\s\d+/g, 'WHEN "previous"');
-                newGroupArr.push(aline);
-                menuHotKeys.push('previous');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|")Esc.\W+('|")/g) !== null){//esc
-                var aline = groupArr[i].replace(/COMMAND\s('|")Esc.\W+('|")/g, 'WHEN "exit"');
-                aline = aline.replace(/EXIT\sMENU/g,'EXIT WHILE');
-                newGroupArr.push(aline);
-                menuCommands.push("exit");
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\s('|").[\S\s]+/g) !== null){//user defined
-                var aline = groupArr[i].replace(/COMMAND/g, 'WHEN');
-                aline = aline.replace(/HELP\s\d+/g,'');
-                newGroupArr.push(aline);
-                if(groupArr[i].match(/(#|{)\s{0,}COMMAND/g) === null){//COMMAND沒有註解的話,才能加入bp
-                    var userDefined = groupArr[i].match(/"[\d\w]+\.[\S\s]+"/g)[0].replace(/"/g,'');//去掉“”    
-                    menuCommands.push(userDefined);
-                }
-                continue;
-            }
-        }
-        if(groupArr[i].match(/COMMAND\sKEY/g) !== null){//熱鍵
-            if(groupArr[i].match(/COMMAND\sKEY\(esc\)/g) !== null){
-                menuCommands.push('close');
-                //hotKeyBegin=true;
-                continue;
-            }
-            // if(groupArr[i].match(/COMMAND\sKEY\(('|")\/('|")\)/g) !== null){//熱鍵jump
-            //     menuGroupIdx.startJump = i;
-            //     continue;
-            // }
-            if(groupArr[i].match(/COMMAND\sKEY\(esc\)/g) !== null){//熱鍵close
-                //var aline = '{' + '\n' + groupArr[i];
-                groupArr[i] = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                var deleteManually = '\n' + blanks_8 + '請手動刪除esc';
-                newGroupArr.push(groupArr[i] + deleteManually);
-                menuCommands.push('close');
-                hotKeyBegin=true;
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(('|")\/('|")\)/g) !== null){//熱鍵jump
-                //var aline = '#' + groupArr[i];
-                var jump = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                jump = jump.replace(/\(('|")\/('|")\)/g,'"jump"');
-                //console.log(jump);
-                newGroupArr.push(jump);
-                menuHotKeys.push('jump');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(F\)/g) !== null){//熱鍵first
-                //var aline = '#' + groupArr[i];
-                var first = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                first = first.replace(/\(F\)/g,'"first"');
-                newGroupArr.push(first);
-                menuHotKeys.push('first');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(L\)/g) !== null){//熱鍵last
-                //var aline = '#' + groupArr[i];
-                var last = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                last = last.replace(/\(L\)/g,'"last"');
-                newGroupArr.push(last);
-                menuHotKeys.push('last');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(F3\)/g) !== null){//熱鍵f3 忽略
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(F4\)/g) !== null){//熱鍵f4 忽略
-                continue;
-            }
-            if(groupArr[i].toUpperCase().match(/COMMAND\sKEY\(CONTROL\-N\)/g) !== null){//熱鍵controlN
-                var controln = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                var callAskKey;
-                if(has_b_askkey === true){
-                    callAskKey = '"controln"' + '\n' + blanks_8 + 'CALL '+ fileCode + '_b_askkey()';
-                }else{
-                    callAskKey = '"controln"' + '\n' + blanks_8 + '#CALL '+ fileCode + '_b_askkey()';
-                }   
-                controln = controln.toUpperCase().replace(/\(CONTROL\-N\)/g, callAskKey);
-                newGroupArr.push(controln);
-                menuCommands.push('controln');
-                menuGroupIdx.startControln = i;
-                continue;
-            }
-            if(groupArr[i].toUpperCase().match(/COMMAND\sKEY\(CONTROL\-G\)/g) !== null){//熱鍵controlG
-                var controlg = groupArr[i].replace(/COMMAND\sKEY/g, 'WHEN ');
-                controlg = controlg.toUpperCase().replace(/\(CONTROL\-G\)/g,'"controlg"');
-                newGroupArr.push(controlg);
-                menuCommands.push('controlg');
-                continue;
-            }
-            if(groupArr[i].match(/COMMAND\sKEY\(INTERRUPT\)/g) !== null){//熱鍵INTERRUPT
-                //var aline = '#' + groupArr[i];
-                menuGroupIdx.startInterrupt = i;
-                continue;
-            }
-        }
-        //以下是需要加工的判斷式
-        if(menuGroupIdx.startBeforeMenu !== 0){
-            //BEFORE MENU開始,到下一個COMMAND之前,都不要push任何行數
-            continue;
-        }
-        if(menuGroupIdx.startDetail !== 0){//detail加上ELSE LET g_action="" END IF
-            if(groupArr[i].match(/END IF/g) !== null){
-                var elseGAction = 'ELSE LET g_action="" END IF';
-                groupArr[i] = groupArr[i].replace(/END IF/g, elseGAction);
-                newGroupArr.push(groupArr[i]);
-                menuGroupIdx.startDetail = 0;
-            } else {
-                newGroupArr.push(groupArr[i]);
+                //console.log(beforeMenu);
+                newMenu.push(beforeMenu);
             }
             continue;
         }
-        if(groupArr[i].match(/CALL\s[\w\d]+_bp\(("|')D("|')\)/g) !== null){//F3 CALL i100_bp("D")忽略
+        if(groupByCommand[i].match(/KEY\(F3\)/g) !== null){//熱鍵f3 忽略
             continue;
         }
-        if(groupArr[i].match(/CALL\s[\w\d]+_bp\(("|')U("|')\)/g) !== null){//F4 CALL i100_bp("U")忽略
+        if(groupByCommand[i].match(/KEY\(F4\)/g) !== null){//熱鍵f4 忽略
             continue;
         }
-        if(groupArr[i].match(/EXIT\sMENU/g) !== null){//只能有一個EXIT MENU
-            if(hasExitWhile === false){//第一個EXIT MENU, 轉成EXIT WHILE
-                var aline = groupArr[i].replace(/EXIT\sMENU/g,'EXIT WHILE');
-                newGroupArr.push(aline);
-                hasExitWhile = true;
-            }
-            //第二個EXIT MENU, 就不加進去了
+        if(groupByCommand[i].match(/KEY\(INTERRUPT\)/g) !== null){//INTERRUPT 忽略
             continue;
         }
-        if(menuGroupIdx.startInterrupt !== 0){//interrupt LET INT_FLAG=0 忽略
-            if(groupArr[i].match(/LET INT_FLAG/g) !== null){
-                menuGroupIdx.startInterrupt = 0;
-            }
+        if(groupByCommand[i].match(/('|")Q.\W+HELP\s\d+/g) !== null){//query
+            var query = blanks_4 + groupByCommand[i].replace(/('|")Q.\W+HELP\s\d+/g, 'WHEN "query"');
+            newMenu.push(query);
+            menuCommands.push('query');
             continue;
         }
-        if(menuGroupIdx.startControln !== 0){//controln CALL i100_bp("N") 忽略
-            menuGroupIdx.startControln = 0;
+        if(groupByCommand[i].match(/('|")B.\W+HELP\s\d+/g) !== null){//detail
+            var detail = blanks_4 + groupByCommand[i].replace(/('|")B.\W+HELP\s\d+/g, 'WHEN "detail"');
+            detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
+            newMenu.push(detail);
+            menuCommands.push('detail');
+            var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\n' +
+                                blanks_8 + "IF cl_prichk('O') THEN\n" +
+                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
+                                blanks_8 + 'END IF\n';
+            newMenu.push(exporttoexcel);
+            menuCommands.push('exporttoexcel');
             continue;
         }
-        if(groupArr[i].match(/END\sMENU/g) !== null){
-            var endWhile = '   END CASE' + '\n' + blanks_4 + 'END WHILE'; //熱鍵註解的}
-            var aline = groupArr[i].replace(/END\sMENU/g, endWhile);
-            newGroupArr.push(aline);
+        if(groupByCommand[i].match(/('|")A.\W+HELP\s\d+/g) !== null){//add
+            var add = blanks_4 + groupByCommand[i].replace(/('|")A.\W+HELP\s\d+/g, 'WHEN "add"');
+            newMenu.push(add);
+            menuCommands.push('add');
             continue;
         }
-        newGroupArr.push(groupArr[i]);
+        if(groupByCommand[i].match(/('|")U.\W+HELP\s\d+/g) !== null){//modify
+            var modify = blanks_4 + groupByCommand[i].replace(/('|")U.\W+HELP\s\d+/g, 'WHEN "modify"');
+            newMenu.push(modify);
+            menuCommands.push('modify');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")C.\W+HELP\s\d+/g) !== null){//reproduce
+            var reproduce = blanks_4 + groupByCommand[i].replace(/('|")C.\W+HELP\s\d+/g, 'WHEN "reproduce"');
+            newMenu.push(reproduce);
+            menuCommands.push('reproduce');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")R.\W+HELP\s\d+/g) !== null){//remove
+            var remove = blanks_4 + groupByCommand[i].replace(/('|")R.\W+HELP\s\d+/g, 'WHEN "remove"');
+            newMenu.push(remove);
+            menuCommands.push('remove');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")O.\W+HELP\s\d+/g) !== null){//output
+            var output = blanks_4 + groupByCommand[i].replace(/('|")O.\W+HELP\s\d+/g, 'WHEN "output"');
+            newMenu.push(output);
+            menuCommands.push('output');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")H.\W+HELP\s\d+/g) !== null){//about
+            var about = blanks_4 + groupByCommand[i].replace(/('|")H.\W+HELP\s\d+/g, 'WHEN "about"');
+            newMenu.push(about);
+            menuCommands.push('about');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")N.\W+HELP\s\d+/g) !== null){//next
+            var next = blanks_4 + groupByCommand[i].replace(/('|")N.\W+HELP\s\d+/g, 'WHEN "next"');
+            newMenu.push(next);
+            menuHotKeys.push('next');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")P.\W+HELP\s\d+/g) !== null){//previous
+            var previous = blanks_4 + groupByCommand[i].replace(/('|")P.\W+HELP\s\d+/g, 'WHEN "previous"');
+            newMenu.push(previous);
+            menuHotKeys.push('previous');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")Esc.\S+('|")/g) !== null){//Esc
+            var exit = blanks_4 + groupByCommand[i].replace(/('|")Esc.\S+('|")/g, 'WHEN "exit"');
+            exit = exit.replace(/EXIT MENU/g, 'EXIT WHILE');
+            newMenu.push(exit);
+            menuCommands.push('exit');
+            continue;
+        }
+        if(groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g) !== null){//其它
+            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g)[0];
+            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\W+('|")/g, 'WHEN '+userDefined);
+            newMenu.push(others);
+            var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
+            menuCommands.push('trimUserDefined');
+            continue;
+        }
+        if(groupByCommand[i].match(/KEY\(esc\)/g) !== null){//KEY(esc)
+            menuCommands.push('close');
+            continue;
+        }
+        if(groupByCommand[i].match(/KEY\(('|")\/('|")\)/g) !== null){//jump
+            var jump = blanks_4 + groupByCommand[i].replace(/KEY\(('|")\/('|")\)/g, 'WHEN "jump"');
+            newMenu.push(jump);
+            menuHotKeys.push('jump');
+            continue;
+        }
+        if(groupByCommand[i].match(/KEY\(F\)/g) !== null){//熱鍵first
+            var first = blanks_4 + groupByCommand[i].replace(/KEY\(F\)/g, 'WHEN "first"');
+            newMenu.push(first);
+            menuHotKeys.push('first');
+            continue;
+        }
+        if(groupByCommand[i].match(/KEY\(L\)/g) !== null){//熱鍵last
+            var last = blanks_4 + groupByCommand[i].replace(/KEY\(L\)/g, 'WHEN "last"');
+            newMenu.push(last);
+            menuHotKeys.push('last');
+            continue;
+        }
+        if(groupByCommand[i].toUpperCase().match(/KEY\(CONTROL\-N\)/g) !== null){//熱鍵controln
+            var controln = blanks_4 + groupByCommand[i].toUpperCase().replace(/KEY\(CONTROL\-N\)/g, 'WHEN "controln"');
+            var callAskKey = (has_b_askkey ? '' : '#' ) + ('CALL '+ fileCode + '_b_askkey()');//是否有Function xxx_b_askkey()
+            controln = controln.replace(/CALL\s+[\w]+_BP\(\S+\)/g, callAskKey);
+            newMenu.push(controln);
+            menuCommands.push('controln');
+            continue;
+        }
+        if(groupByCommand[i].toLowerCase().match(/key\(control\-g\)/g) !== null){//熱鍵controlg
+            var controlg = blanks_4 + groupByCommand[i].toLowerCase().replace(/key\(control\-g\)/g, 'WHEN "controlg"');
+            newMenu.push(controlg);
+            menuCommands.push('controlg');
+            continue;
+        }
     }
-    a_group = newGroupArr.join('\n');
-    //console.log(a_group);
-    return a_group;
+    var end = blanks_4 + 'END CASE' + '\n' + blanks_1 + 'END WHILE\n' + 'END FUNCTION';
+    newMenu.push(end);
+    newMenu = newMenu.join('\n');
+    return newMenu;
 }
 
-function isCommentOut(group,command){//COMMAND沒有註解的話,才能加入bp
-    //console.log('group',group);
-    if(group.match(/(#|{)\s{0,}COMMAND/g) === null){
-        menuCommands.push(command);
-    }
-}
+// function isCommentOut(group,command){//COMMAND沒有註解的話,才能加入bp
+//     //console.log('group',group);
+//     if(group.match(/(#|{)\s{0,}COMMAND/g) === null){
+//         menuCommands.push(command);
+//     }
+// }
 
 function getBeforeDisplay(){
     beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
+    // beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
+    // //console.log(beforeMenuString);
+    // var newBeforeDisplay = [];
+    // var beforeMenuArr = beforeMenuString.split('\n');
+    // for(var i=0;i<beforeMenuArr.length;i++){
+    //     if(beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/g) !== null){
+    //         var cl_set_action = '\n' + blanks_12 + 'CALL cl_set_action(請先自行填寫,FALSE)';
+    //         var markOption = '#' + beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/)[0];
+    //         beforeMenuArr[i] = beforeMenuArr[i].replace(/HIDE\s+OPTION\s+('|")\S+('|")/g,markOption + cl_set_action);
+    //         newBeforeDisplay.push(beforeMenuArr[i]);
+    //         continue;
+    //     }
+    //     newBeforeDisplay.push(beforeMenuArr[i]);
+    // }
+    // newBeforeDisplay = newBeforeDisplay.join('\n');
     //console.log(beforeMenuString);
-    var newBeforeDisplay = [];
-    var beforeMenuArr = beforeMenuString.split('\n');
-    for(var i=0;i<beforeMenuArr.length;i++){
-        if(beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/g) !== null){
-            var cl_set_action = '\n' + blanks_12 + 'CALL cl_set_action(請先自行填寫,FALSE)';
-            var markOption = '#' + beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/)[0];
-            beforeMenuArr[i] = beforeMenuArr[i].replace(/HIDE\s+OPTION\s+('|")\S+('|")/g,markOption + cl_set_action);
-            newBeforeDisplay.push(beforeMenuArr[i]);
-            continue;
-        }
-        newBeforeDisplay.push(beforeMenuArr[i]);
-    }
-    newBeforeDisplay = newBeforeDisplay.join('\n');
-    //console.log(newBeforeDisplay);
-    return newBeforeDisplay;
+    return beforeMenuString;
 }
 
 var _bpFunc = function(a_group){
 
     var a_groupArr =  a_group.split('\n');
-    
-    var groupStartIdx = {
-        switchCase: 0,
+
+    var g_s_record;
+    if(a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g) !== null){
+        g_s_record = blanks_4 + '#' + a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g)[0] + '\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
+    }else{
+        g_s_record = commentOut(a_group);//應對長得很奇怪的bp()
     }
-
-    var g_s_record = blanks_4 + '#' + a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g)[0] + '\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
     //console.log(g_s_record);
-
-    //var s_variable = 's_' + dynamicArrOfRecVariable.split('_')[1];
     
     var newCode = blanks_4 + 
                   'DEFINE p_ud            CHAR(1)' + '\n' + blanks_4 +
@@ -346,16 +229,21 @@ var _bpFunc = function(a_group){
                     'BEFORE ROW' + '\n' + blanks_8 +
                     'LET l_ac=ARR_CURR()' + '\n';
     
-    var onActionArr = [];
-    var newGroupArr = [];
-
-    var onAction = 'ON ACTION';
-    var g_action = 'LET g_action=';
-    var exitDisplay = 'EXIT DISPLAY';
-    var acceptDisplay = 'ACCEPT DISPLAY';
     menuHotKeys.sort();//先按字母排序
     menuHotKeys.sort(orderHotKeys);//再按first,previous,jump,next,last
 
+    var hotKeyArr = [];
+    for(var i=0; i<menuHotKeys.length; i++){
+        var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
+        hotKey = hotKey + blanks_8 +
+                'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
+                'EXIT DISPLAY' + '\n';
+        hotKeyArr.push(hotKey);
+    }
+    var hotKeys = hotKeyArr.join('\n');
+    //console.log(hotKeys);
+    
+    var onActionArr = [];
     for(var i=0; i<menuCommands.length; i++){
         var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuCommands[i].replace(/"/g,'') + '\n';
         
@@ -364,6 +252,9 @@ var _bpFunc = function(a_group){
         }
         if(menuCommands[i]==='close'){//ON ACTION close LET INT_FLAG=0
             oneAction = oneAction + blanks_8 + 'LET INT_FLAG=0 \n';
+        }
+        if(menuCommands[i]==='controlg'){
+            onActionArr.push(hotKeys);//將hot-keys放在controlg上方
         }
         if(menuCommands[i]!=='about'){//其他一般的ON ACTION
             oneAction = oneAction + blanks_8 +
@@ -374,15 +265,7 @@ var _bpFunc = function(a_group){
         }
         onActionArr.push(oneAction);
     }
-
-    for(var i=0; i<menuHotKeys.length; i++){
-        var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
-        oneAction = oneAction + blanks_8 +
-                'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
-                'EXIT DISPLAY' + '\n';
-        onActionArr.push(oneAction);
-    }
-
+    
     //console.log(menuHotKeys);
     // for(var i=0; i<menuHotKeys.length; i++){
     //     var action = blanks_4 + 'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
@@ -404,7 +287,7 @@ var _bpFunc = function(a_group){
     //     }
     //     onActionArr.push(action);
     // }
-    onActionArr.push('請把hot-key放在controlg上');
+
     var onActions = onActionArr.join('\n');
 
     var displayIDLE = '\n' + blanks_4 + 'ON IDLE g_idle' + '\n' + blanks_8 +
@@ -414,22 +297,23 @@ var _bpFunc = function(a_group){
     var afterDisplay = blanks_4 + 'AFTER DISPLAY' + '\n' + blanks_8 + 'CONTINUE DISPLAY' + '\n';
     var endDisplay = blanks_4 + 'END DISPLAY' + '\n' + blanks_4 + 'CALL cl_set_act_visible("accept,cancel", TRUE)'
 
-    newGroupArr.push('FUNCTION '+fileCode+'_bp(p_ud)');
-    newGroupArr.push(newCode);
-    newGroupArr.push(g_s_record);
+    var newBp = [];
+    newBp.push('FUNCTION '+fileCode+'_bp(p_ud)');
+    newBp.push(newCode);
+    newBp.push(g_s_record);
     if(hasHideOption === true){
-        newGroupArr.push(newBeforeDisplay);
+        newBp.push(newBeforeDisplay);
     }
-    newGroupArr.push(beforeRow);
-    newGroupArr.push(onActions);
-    newGroupArr.push(displayIDLE);
-    newGroupArr.push(afterDisplay);
-    newGroupArr.push(endDisplay);
-    newGroupArr.push('END FUNCTION');
+    newBp.push(beforeRow);
+    newBp.push(onActions);
+    newBp.push(displayIDLE);
+    newBp.push(afterDisplay);
+    newBp.push(endDisplay);
+    newBp.push('END FUNCTION');
 
-    a_group = newGroupArr.join('\n');
-    //console.log(a_group);
-    return a_group;
+    newBp = newBp.join('\n');
+    //console.log(newBp);
+    return newBp;
 }
 
 function orderHotKeys(a,b){  
