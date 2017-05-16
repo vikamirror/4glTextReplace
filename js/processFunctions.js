@@ -122,9 +122,12 @@ var onIdle_construct = function(a_group){
 }
 
 var onIdle_prompt = function(a_group){
+    //console.log(a_group);
+    a_group = a_group.replace(/#end prompt for/g,'');
+
     var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' +  blanks_8 + 'END PROMPT\n';
     a_group = a_group + onIdle;
-    //console.log(a_group);
+    console.log(a_group);
     return a_group;
 }
 

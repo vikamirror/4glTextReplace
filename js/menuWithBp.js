@@ -178,7 +178,7 @@ var menuWtihBpFunc = function(a_group){
     var end = blanks_4 + 'END CASE' + '\n' + blanks_1 + 'END WHILE\n' + 'END FUNCTION';
     newMenu.push(end);
     newMenu = newMenu.join('\n');
-    console.log(newMenu);
+    //console.log(newMenu);
     return newMenu;
 }
 

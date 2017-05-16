@@ -92,7 +92,10 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/CALL\s+\w+_bp\(('|")D('|")\)/g) !== null){
         processFunctions.push(commentOutCall_bpD);
     }
-    if(a_group.match(/PROMPT[\s\w\,\'\:]+FOR/g) !== null){
+    // if(a_group.match(/PROMPT[\s\w\,\'\:]+FOR/g) !== null){
+    //     processFunctions.push(onIdle_prompt);
+    // }
+    if(a_group.match(/#end prompt for/g) !== null){
         processFunctions.push(onIdle_prompt);
     }
     if(a_group.match(/END INPUT/g) !== null){
@@ -135,7 +138,7 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/INSERT\s+KEY\s+F1/g) !== null){
         processFunctions.push(commentOutInsertDeleteOption);
     }
-    if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){
+    if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || a_group.match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){
         processFunctions.push(dryCleaningForLoop);
     }
     return processFunctions;
@@ -292,7 +295,7 @@ var groupLines = function(lines){
             }
             continue;
         }
-        if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){//乾洗 FOR l_cnt = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
+        if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || lines[i].match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
             groupStartIdx.dryCleaning = i;
             continue;
         }
@@ -301,6 +304,19 @@ var groupLines = function(lines){
                 var dryCleaning = pushGroup(lines, groupStartIdx.dryCleaning, i);
                 linegroup.push(dryCleaning);
                 groupStartIdx.dryCleaning = 0;
+            }
+            continue;
+        }
+        if(lines[i].toUpperCase().match(/PROMPT/g) !== null){//Prompt, 含換行的FOR
+           //console.log(lines[i]);
+            if(lines[i].toUpperCase().match(/FOR/g) !== null){
+                linegroup.push(lines[i] + ' #end prompt for');
+            }else if(lines[i+1].toUpperCase().match(/FOR/g) !== null){
+                var promptFor = pushGroup(lines, i, i+1);       
+                linegroup.push(promptFor + ' #end prompt for');
+                lines[i+1] = '';//清除下一行,比避免line[i+1]被加進linegroup,Prompt會有兩個FOR l_abso...之類的
+            }else{
+                linegroup.push(lines[i]);
             }
             continue;
         }
