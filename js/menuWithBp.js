@@ -14,18 +14,18 @@ var menuWtihBpFunc = function(a_group){
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU/g,'');
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END FUNCTION/g,'');
     }
-    //console.log(groupByCommand.join('\r\n'));
+    //console.log(groupByCommand.join('\n'));
     var newMenu = [];
     for(var i=0; i<groupByCommand.length; i++){
         if(groupByCommand[i].match(/MENU\s('|"){2}/g) !== null){//如果有MENU ""
-            var whileTrue = 'WHILE TRUE' + '\r\n' + 
-                            blanks_4 + 'CALL ' + fileCode + '_bp("G")' + '\r\n' + 
-                            blanks_4 + 'CASE g_action' + '\r\n';
+            var whileTrue = 'WHILE TRUE' + '\n' + 
+                            blanks_4 + 'CALL ' + fileCode + '_bp("G")' + '\n' + 
+                            blanks_4 + 'CASE g_action' + '\n';
             var head;
             var beforeMenu = '';
             if(groupByCommand[i].match(/BEFORE MENU/g) !== null){//有BEFORE MENU
                 head = groupByCommand[i].split('BEFORE MENU')[0];//用BEFORE MENU切割
-                beforeMenu = blanks_4 + 'BEFORE MENU\r\n' + groupByCommand[i].split('BEFORE MENU')[1];
+                beforeMenu = blanks_4 + 'BEFORE MENU\n' + groupByCommand[i].split('BEFORE MENU')[1];
                 beforeMenuString = beforeMenu;
             }else{
                 head = groupByCommand[i];
@@ -60,10 +60,10 @@ var menuWtihBpFunc = function(a_group){
             detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
             newMenu.push(detail);
             menuCommands.push('detail');
-            var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\r\n' +
-                                blanks_8 + "IF cl_prichk('O') THEN\r\n" +
-                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\r\n' +
-                                blanks_8 + 'END IF\r\n';
+            var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\n' +
+                                blanks_8 + "IF cl_prichk('O') THEN\n" +
+                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
+                                blanks_8 + 'END IF\n';
             newMenu.push(exporttoexcel);
             menuCommands.push('exporttoexcel');
             continue;
@@ -99,8 +99,8 @@ var menuWtihBpFunc = function(a_group){
             continue;
         }
         if(groupByCommand[i].match(/('|")H.\W+HELP\s\d+/g) !== null){//about
-            var about = blanks_4 + groupByCommand[i].replace(/('|")H.\W+HELP\s\d+/g, 'WHEN "about"');
-            newMenu.push(about);
+            //var about = blanks_4 + groupByCommand[i].replace(/('|")H.\W+HELP\s\d+/g, 'WHEN "about"');
+            //newMenu.push(about); 因為bp裡面已經有call showHelp了因此menu中省略
             menuCommands.push('about');
             continue;
         }
@@ -162,7 +162,7 @@ var menuWtihBpFunc = function(a_group){
             if(controln.match(/CALL\s+[\w]+_BP\(\S+\)/g) !==null){
                 controln = controln.replace(/CALL\s+[\w]+_BP\(\S+\)/g, callAskKey);
             }else{
-                controln = controln + '\r\n' + blanks_8 + callAskKey;//如果controln裡面沒有call_xxx_bp("D")
+                controln = controln + '\n' + blanks_8 + callAskKey;//如果controln裡面沒有call_xxx_bp("D")
             }
             newMenu.push(controln);
             menuCommands.push('controln');
@@ -175,9 +175,9 @@ var menuWtihBpFunc = function(a_group){
             continue;
         }
     }
-    var end = blanks_4 + 'END CASE' + '\r\n' + blanks_1 + 'END WHILE\r\n' + 'END FUNCTION';
+    var end = blanks_4 + 'END CASE' + '\n' + blanks_1 + 'END WHILE\n' + 'END FUNCTION';
     newMenu.push(end);
-    newMenu = newMenu.join('\r\n');
+    newMenu = newMenu.join('\n');
     console.log(newMenu);
     return newMenu;
 }
@@ -194,10 +194,10 @@ function getBeforeDisplay(){
     // beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
     // //console.log(beforeMenuString);
     // var newBeforeDisplay = [];
-    // var beforeMenuArr = beforeMenuString.split('\r\n');
+    // var beforeMenuArr = beforeMenuString.split('\n');
     // for(var i=0;i<beforeMenuArr.length;i++){
     //     if(beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/g) !== null){
-    //         var cl_set_action = '\r\n' + blanks_12 + 'CALL cl_set_action(請先自行填寫,FALSE)';
+    //         var cl_set_action = '\n' + blanks_12 + 'CALL cl_set_action(請先自行填寫,FALSE)';
     //         var markOption = '#' + beforeMenuArr[i].match(/HIDE\s+OPTION\s+('|")\S+('|")/)[0];
     //         beforeMenuArr[i] = beforeMenuArr[i].replace(/HIDE\s+OPTION\s+('|")\S+('|")/g,markOption + cl_set_action);
     //         newBeforeDisplay.push(beforeMenuArr[i]);
@@ -205,106 +205,106 @@ function getBeforeDisplay(){
     //     }
     //     newBeforeDisplay.push(beforeMenuArr[i]);
     // }
-    // newBeforeDisplay = newBeforeDisplay.join('\r\n');
+    // newBeforeDisplay = newBeforeDisplay.join('\n');
     //console.log(beforeMenuString);
     return beforeMenuString;
 }
 
 var _bpFunc = function(a_group){
 
-    var a_groupArr =  a_group.split('\r\n');
+    var a_groupArr =  a_group.split('\n');
 
     var g_s_record;
     if(a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g) !== null){
-        g_s_record = blanks_4 + '#' + a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g)[0] + '\r\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
+        g_s_record = blanks_4 + '#' + a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g)[0] + '\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
     }else{
         g_s_record = commentOut(a_group);//應對長得很奇怪的bp()
     }
     //console.log(g_s_record);
     
     var newCode = blanks_4 + 
-                  'DEFINE p_ud            CHAR(1)' + '\r\n' + blanks_4 +
-                  'IF p_ud <>"G" OR g_action="detail" THEN' + '\r\n' + blanks_4 +
-                  '    RETURN' + '\r\n' + blanks_4 +
-                  'END IF' + '\r\n' + blanks_4 +
-                  'LET g_action = "" ' + '\r\n' + blanks_4 +
-                  'CALL cl_set_act_visible("accept,cancel", FALSE)' + '\r\n' + blanks_4 +
-                  'DISPLAY ARRAY g_程式變數 TO s_程式變數.* ATTRIBUTE(COUNT=單身筆數, DOUBLECLICK=SELECT, UNBUFFERED)' + '\r\n';
+                  'DEFINE p_ud            CHAR(1)' + '\n' + blanks_4 +
+                  'IF p_ud <>"G" OR g_action="detail" THEN' + '\n' + blanks_4 +
+                  '    RETURN' + '\n' + blanks_4 +
+                  'END IF' + '\n' + blanks_4 +
+                  'LET g_action = "" ' + '\n' + blanks_4 +
+                  'CALL cl_set_act_visible("accept,cancel", FALSE)' + '\n' + blanks_4 +
+                  'DISPLAY ARRAY g_程式變數 TO s_程式變數.* ATTRIBUTE(COUNT=單身筆數, DOUBLECLICK=SELECT, UNBUFFERED)' + '\n';
     
     var newBeforeDisplay = getBeforeDisplay();
     //console.log(newBeforeDisplay);
 
     var beforeRow = blanks_4 + 
-                    'BEFORE ROW' + '\r\n' + blanks_8 +
-                    'LET l_ac=ARR_CURR()' + '\r\n';
+                    'BEFORE ROW' + '\n' + blanks_8 +
+                    'LET l_ac=ARR_CURR()' + '\n';
     
     menuHotKeys.sort();//先按字母排序
     menuHotKeys.sort(orderHotKeys);//再按first,previous,jump,next,last
 
     var hotKeyArr = [];
     for(var i=0; i<menuHotKeys.length; i++){
-        var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\r\n';
+        var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
         hotKey = hotKey + blanks_8 +
-                'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\r\n' + blanks_8 +
-                'EXIT DISPLAY' + '\r\n';
+                'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
+                'EXIT DISPLAY' + '\n';
         hotKeyArr.push(hotKey);
     }
-    var hotKeys = hotKeyArr.join('\r\n');
+    var hotKeys = hotKeyArr.join('\n');
     //console.log(hotKeys);
     
     var onActionArr = [];
     for(var i=0; i<menuCommands.length; i++){
-        var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuCommands[i].replace(/"/g,'') + '\r\n';
+        var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuCommands[i].replace(/"/g,'') + '\n';
         
         if(menuCommands[i]==='detail'){//ON ACTION controln LET l_ac=1
-            oneAction = oneAction + blanks_8 + 'LET l_ac=1 \r\n';
+            oneAction = oneAction + blanks_8 + 'LET l_ac=1 \n';
         }
         if(menuCommands[i]==='close'){//ON ACTION close LET INT_FLAG=0
-            oneAction = oneAction + blanks_8 + 'LET INT_FLAG=0 \r\n';
+            oneAction = oneAction + blanks_8 + 'LET INT_FLAG=0 \n';
         }
         if(menuCommands[i]==='controlg'){
             onActionArr.push(hotKeys);//將hot-keys放在controlg上方
         }
         if(menuCommands[i]!=='about'){//其他一般的ON ACTION
             oneAction = oneAction + blanks_8 +
-                'LET g_action=' + '"' +  ( menuCommands[i]!=='close'? menuCommands[i]:'exit' ) + '"' + '\r\n' + blanks_8 +
-                'EXIT DISPLAY' + '\r\n';
+                'LET g_action=' + '"' +  ( menuCommands[i]!=='close'? menuCommands[i]:'exit' ) + '"' + '\n' + blanks_8 +
+                'EXIT DISPLAY' + '\n';
         } else {//ON ACTION ABOUT
-            oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\r\n';
+            oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\n';
         }
         onActionArr.push(oneAction);
     }
     
     //console.log(menuHotKeys);
     // for(var i=0; i<menuHotKeys.length; i++){
-    //     var action = blanks_4 + 'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\r\n';
+    //     var action = blanks_4 + 'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
 
     //     if(menuHotKeys[i]==='jump'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("/")' + '\r\n' ;
+    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("/")' + '\n' ;
     //     }
     //     if(menuHotKeys[i]==='first'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("F")' + '\r\n' ;
+    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("F")' + '\n' ;
     //     }
     //     if(menuHotKeys[i]==='last'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("L")' + '\r\n' ;
+    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("L")' + '\n' ;
     //     }
     //     if(menuHotKeys[i]==='controlg'){
     //         action = action + blanks_8 + 'CALL cl_cmdask()'
     //     }
     //     if(menuHotKeys[i]!=='controlg'){
-    //         action = action + blanks_8 + 'ACCEPT DISPLAY' + '\r\n';
+    //         action = action + blanks_8 + 'ACCEPT DISPLAY' + '\n';
     //     }
     //     onActionArr.push(action);
     // }
 
-    var onActions = onActionArr.join('\r\n');
+    var onActions = onActionArr.join('\n');
 
-    var displayIDLE = '\r\n' + blanks_4 + 'ON IDLE g_idle' + '\r\n' + blanks_8 +
-                      'CALL cl_on_idle()' + '\r\n' + blanks_8 +
-                      'CONTINUE DISPLAY' + '\r\n';
+    var displayIDLE = '\n' + blanks_4 + 'ON IDLE g_idle' + '\n' + blanks_8 +
+                      'CALL cl_on_idle()' + '\n' + blanks_8 +
+                      'CONTINUE DISPLAY' + '\n';
 
-    var afterDisplay = blanks_4 + 'AFTER DISPLAY' + '\r\n' + blanks_8 + 'CONTINUE DISPLAY' + '\r\n';
-    var endDisplay = blanks_4 + 'END DISPLAY' + '\r\n' + blanks_4 + 'CALL cl_set_act_visible("accept,cancel", TRUE)'
+    var afterDisplay = blanks_4 + 'AFTER DISPLAY' + '\n' + blanks_8 + 'CONTINUE DISPLAY' + '\n';
+    var endDisplay = blanks_4 + 'END DISPLAY' + '\n' + blanks_4 + 'CALL cl_set_act_visible("accept,cancel", TRUE)'
 
     var newBp = [];
     newBp.push('FUNCTION '+fileCode+'_bp(p_ud)');
@@ -320,7 +320,7 @@ var _bpFunc = function(a_group){
     newBp.push(endDisplay);
     newBp.push('END FUNCTION');
 
-    newBp = newBp.join('\r\n');
+    newBp = newBp.join('\n');
     //console.log(newBp);
     return newBp;
 }

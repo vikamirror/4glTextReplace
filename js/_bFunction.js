@@ -1,17 +1,17 @@
 var _bBeforeRow = function(a_group){
     //console.log(a_group);
-    var a_groupArr = a_group.split('\r\n');
-    var defineInsert_delete = 'DEFINE\r\n' + 
-                              blanks_4 + 'l_allow_insert' + blanks_8 + 'LIKE type_file.num5,\r\n' + 
+    var a_groupArr = a_group.split('\n');
+    var defineInsert_delete = 'DEFINE\n' + 
+                              blanks_4 + 'l_allow_insert' + blanks_8 + 'LIKE type_file.num5,\n' + 
                               blanks_4 + 'l_allow_delete' + blanks_8 + 'LIKE type_file.num5,';
-    var clean_g_ction = '\r\n' + blanks_4 + 'LET g_action=""\r\n';
+    var clean_g_ction = '\n' + blanks_4 + 'LET g_action=""\n';
 
-    var normalAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\r\n' + blanks_8 + 
-                          'INSERT ROW=TRUE, DELETE ROW=TRUE, APPEND ROW=TRUE)\r\n' + blanks_4 + 
+    var normalAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\n' + blanks_8 + 
+                          'INSERT ROW=TRUE, DELETE ROW=TRUE, APPEND ROW=TRUE)\n' + blanks_4 + 
                           'BEFORE ROW';
 
-    var hasAuthorityCheckAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\r\r\n' + blanks_8 + 
-                                     'INSERT ROW=l_allow_insert, DELETE ROW=l_allow_delete, APPEND ROW=l_allow_insert)\r\r\n' + blanks_4 + 
+    var hasAuthorityCheckAttribute = 'ATTRIBUTE(COUNT=單身筆數, MAXCOUNT=程式變數的個數, UNBUFFERED,\r\n' + blanks_8 + 
+                                     'INSERT ROW=l_allow_insert, DELETE ROW=l_allow_delete, APPEND ROW=l_allow_insert)\r\n' + blanks_4 + 
                                      'BEFORE ROW';
 
     var newGroupArr = [];
@@ -37,8 +37,8 @@ var _bBeforeRow = function(a_group){
             continue;
         }
         if(a_groupArr[i].match(/cl_prichk\(('|")A('|")\)/g) !== null){//IF NOT cl_prichk('A') THEN
-            var allowInsertDeleteTrue = blanks_4 + 'LET l_allow_insert = TRUE\r\n' +
-                                        blanks_4 + 'LET l_allow_delete = TRUE\r\n';
+            var allowInsertDeleteTrue = blanks_4 + 'LET l_allow_insert = TRUE\n' +
+                                        blanks_4 + 'LET l_allow_delete = TRUE\n';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], allowInsertDeleteTrue + a_groupArr[i]);
             newGroupArr.push(a_groupArr[i]);
             _bpVariables.hasAuthorityCheck = true;
@@ -50,7 +50,7 @@ var _bBeforeRow = function(a_group){
             continue;
         }
         if(a_groupArr[i].match(/LET\s+l_insert[\s\=]+("|')N("|')/g) !== null){//LET l_allow_insert = FALSE
-            var allowInsertFalse = '\r\n' + blanks_8 + 'LET l_allow_insert = FALSE';
+            var allowInsertFalse = '\n' + blanks_8 + 'LET l_allow_insert = FALSE';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], a_groupArr[i] + allowInsertFalse);
             newGroupArr.push(a_groupArr[i]);
             continue;
@@ -61,7 +61,7 @@ var _bBeforeRow = function(a_group){
             continue;
         }
         if(a_groupArr[i].match(/LET\s+l_update[\s\=]+("|')N("|')/g) !== null){//LET l_allow_delete = FALSE
-            var allowDeleteFalse = '\r\n' + blanks_8 + 'LET l_allow_delete = FALSE';
+            var allowDeleteFalse = '\n' + blanks_8 + 'LET l_allow_delete = FALSE';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], a_groupArr[i] + allowDeleteFalse);
             newGroupArr.push(a_groupArr[i]);
             continue;
@@ -87,7 +87,7 @@ var _bBeforeRow = function(a_group){
         }
         newGroupArr.push(a_groupArr[i]);
     }
-    a_group = newGroupArr.join('\r\n');
+    a_group = newGroupArr.join('\n');
     //console.log(a_group);
     return a_group;
 }

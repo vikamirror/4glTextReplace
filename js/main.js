@@ -30,19 +30,19 @@ var setUpReader = function(file){
         //fileCodeRepository = fileCode;
         var fileText = fileReader.result; 
         var readLineArr = readLine(fileText);
-        var fileText_after = readLineArr.join('\r\n');
+        var fileText_after = readLineArr.join('\n');
         
-        //console.log(fileText_after);
+        console.log(fileText_after);
         clearData();
         //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';
-        download(fileName, fileText_after, mimeType);
+        //download(fileName, fileText_after, mimeType);
     }
 }
 
 //逐行讀取
 var readLine = function(fileText){
-    var lines = fileText.split('\r\n');
+    var lines = fileText.split('\n');
     var linegroup = groupLines(lines);
     var newLines = [];
     for(var i=0; i<linegroup.length; i++){
@@ -66,6 +66,7 @@ var modifyLine = function(a_group){
 
 //對應到要修改到function
 var getProcessFunctions = function(a_group){
+    //console.log(a_group);
     var processFunctions = [];
     // if(a_group.includes('GLOBAL')){
 	// 	processFunctions.push(globalCode);
@@ -84,6 +85,12 @@ var getProcessFunctions = function(a_group){
     }
     if(a_group.toLowerCase().match(/arrow/g) !== null){
         processFunctions.push(commentOutArrow);
+    }
+    if(a_group.match(/g_\w+_pageno/g) !== null){
+        processFunctions.push(commentOutPageNo);
+    }
+    if(a_group.match(/CALL\s+\w+_bp\(('|")D('|")\)/g) !== null){
+        processFunctions.push(commentOutCall_bpD);
     }
     if(a_group.match(/PROMPT[\s\w\,\'\:]+FOR/g) !== null){
         processFunctions.push(onIdle_prompt);
@@ -116,9 +123,9 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){
         processFunctions.push(_bpFunc);
     }
-    if(a_group.match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){//pageno=0
-        processFunctions.push(commentOutPageNo);
-    }
+    // if(a_group.match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){//pageno=0
+    //     processFunctions.push(commentOutPageNo);
+    // }
     if(a_group.match(/l_za05\s+CHAR\(40\)/g) !== null){// l_za05 CHAR(80)
         processFunctions.push(l_za05Char);
     }
@@ -156,8 +163,9 @@ var groupLines = function(lines){
         dryCleaning: 0,
     }
     var linegroup = [];
-
+   //console.log(lines);
     for(var i=0; i<lines.length; i++){
+        
         if(groupStartIdx.hasOpenWindow === 0){
             if(lines[i].match(/OPEN\sWINDOW\s(\S|)+\sAT/g) !== null){//OPEN WINDOW
                 if(lines[i].match(/ATTRIBUTE/g) !== null){
@@ -245,22 +253,23 @@ var groupLines = function(lines){
             }
             continue;
         }
-        if(lines[i].match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){
-            if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
-                linegroup.push(lines[i]);
-            }else{
-                groupStartIdx._pageNo = i;
-            }
-            continue;
-        }
-        if(groupStartIdx._pageNo !== 0){
-            if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
-                var _pageGroup = pushGroup(lines, groupStartIdx._pageNo, i);
-                linegroup.push(_pageGroup);
-            }
-            groupStartIdx._pageNo = 0;//通常不是在_pageno的下一行, 就是跟_pageno同一行
-            continue;
-        }
+        // if(lines[i].match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){
+        //     if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
+        //         linegroup.push(lines[i]);
+        //     }else{
+        //         groupStartIdx._pageNo = i;
+        //     }
+        //     continue;
+        // }
+        // if(groupStartIdx._pageNo !== 0){
+        //     if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
+        //         var _pageGroup = pushGroup(lines, groupStartIdx._pageNo, i);
+        //         //console.log(_pageGroup);
+        //         linegroup.push(_pageGroup);
+        //     }
+        //     groupStartIdx._pageNo = 0;//通常不是在_pageno的下一行, 就是跟_pageno同一行
+        //     continue;
+        // }
         if(lines[i].match(/FUNCTION\s+\w+_menu1\(\)/g) !== null){
             groupStartIdx.startMenu1 = i;
             continue;
@@ -324,7 +333,7 @@ var pushGroup = function(lines, groupStartIdx, i){
     var aGroup = '';
 
     for(var j=groupStartIdx; j<i+1; j++){
-        aGroup += lines[j] + '\r\n';
+        aGroup += lines[j] + '\n';
     }
     return aGroup;
 }
