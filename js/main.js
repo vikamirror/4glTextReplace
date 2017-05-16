@@ -32,11 +32,11 @@ var setUpReader = function(file){
         var readLineArr = readLine(fileText);
         var fileText_after = readLineArr.join('\n');
         
-        console.log(fileText_after);
+        //console.log(fileText_after);
         clearData();
         //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';
-        //download(fileName, fileText_after, mimeType);
+        download(fileName, fileText_after, mimeType);
     }
 }
 
@@ -126,17 +126,17 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){
         processFunctions.push(_bpFunc);
     }
-    // if(a_group.match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){//pageno=0
-    //     processFunctions.push(commentOutPageNo);
-    // }
     if(a_group.match(/l_za05\s+CHAR\(40\)/g) !== null){// l_za05 CHAR(80)
         processFunctions.push(l_za05Char);
     }
     if(a_group.toUpperCase().match(/G_X\s+ARRAY\[\d+\]\s+OF\s+CHAR\(\d+\)/g) !== null){
         processFunctions.push(l_za05Char);
     }
-    if(a_group.match(/INSERT\s+KEY\s+F1/g) !== null){
-        processFunctions.push(commentOutInsertDeleteOption);
+    if(a_group.match(/INSERT\s+KEY/g) !== null){
+        processFunctions.push(commentOutInsertKey);
+    }
+    if(a_group.match(/DELETE\s+KEY/g) !== null){
+        processFunctions.push(commentOutDeleteKey);
     }
     if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || a_group.match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){
         processFunctions.push(dryCleaningForLoop);
@@ -256,23 +256,6 @@ var groupLines = function(lines){
             }
             continue;
         }
-        // if(lines[i].match(/LET\s+g_\w+_pageno[\s\=]+0/g) !== null){
-        //     if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
-        //         linegroup.push(lines[i]);
-        //     }else{
-        //         groupStartIdx._pageNo = i;
-        //     }
-        //     continue;
-        // }
-        // if(groupStartIdx._pageNo !== 0){
-        //     if(lines[i].match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
-        //         var _pageGroup = pushGroup(lines, groupStartIdx._pageNo, i);
-        //         //console.log(_pageGroup);
-        //         linegroup.push(_pageGroup);
-        //     }
-        //     groupStartIdx._pageNo = 0;//通常不是在_pageno的下一行, 就是跟_pageno同一行
-        //     continue;
-        // }
         if(lines[i].match(/FUNCTION\s+\w+_menu1\(\)/g) !== null){
             groupStartIdx.startMenu1 = i;
             continue;
@@ -296,7 +279,11 @@ var groupLines = function(lines){
             continue;
         }
         if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || lines[i].match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
-            groupStartIdx.dryCleaning = i;
+            if(lines[i].match(/END FOR/g) !== null){//處理乾洗FOR...END FOR同一行的狀況
+                linegroup.push(lines[i]);
+            } else {
+                groupStartIdx.dryCleaning = i;
+            }
             continue;
         }
         if(groupStartIdx.dryCleaning !== 0){//乾洗
@@ -325,20 +312,20 @@ var groupLines = function(lines){
             linegroup.push(lines[i]);
             continue;
         }
-        if(lines[i].match(/INSERT\s+KEY\s+F1/g) !== null){//OPTIONS INSERT KEY F1, DELETE KEY F2
-            linegroup[linegroup.length-1] = '';
-            groupStartIdx.insertDeleteOptions = i-1;
-            continue;
-        }
-        if(groupStartIdx.insertDeleteOptions !== 0){//OPTIONS INSERT KEY F1, DELETE KEY F2
-            if(lines[i].match(/DELETE\s+KEY\s+F2/g) !== null){
-                var options = pushGroup(lines, groupStartIdx.insertDeleteOptions, i);
-                //console.log(options);
-                linegroup.push(options);
-                groupStartIdx.insertDeleteOptions = 0;
-            }
-            continue;
-        }
+        // if(lines[i].match(/INSERT\s+KEY\s+F1/g) !== null){//OPTIONS INSERT KEY F1, DELETE KEY F2
+        //     linegroup[linegroup.length-1] = '';
+        //     groupStartIdx.insertDeleteOptions = i-1;
+        //     continue;
+        // }
+        // if(groupStartIdx.insertDeleteOptions !== 0){//OPTIONS INSERT KEY F1, DELETE KEY F2
+        //     if(lines[i].match(/DELETE\s+KEY\s+F2/g) !== null){
+        //         var options = pushGroup(lines, groupStartIdx.insertDeleteOptions, i);
+        //         //console.log(options);
+        //         linegroup.push(options);
+        //         groupStartIdx.insertDeleteOptions = 0;
+        //     }
+        //     continue;
+        // }
         linegroup.push(lines[i]);
     } 
     return linegroup;

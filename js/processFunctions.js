@@ -127,7 +127,7 @@ var onIdle_prompt = function(a_group){
 
     var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' +  blanks_8 + 'END PROMPT\n';
     a_group = a_group + onIdle;
-    console.log(a_group);
+   //console.log(a_group);
     return a_group;
 }
 
@@ -179,11 +179,21 @@ var commentOutCall_bpD = function(a_group){
     return a_group;
 }
 
-var commentOutInsertDeleteOption = function(a_group){
-    if(a_group.match(/INPUT ARRAY/g) === null){//沒有INPUT ARRAY, 排除FUNCTION _b()
-        a_group = commentOut(a_group);
-    }
-    //console.log(a_group);
+// var commentOutInsertDeleteOption = function(a_group){
+//     if(a_group.match(/INPUT ARRAY/g) === null){//沒有INPUT ARRAY, 排除FUNCTION _b()
+//         a_group = commentOut(a_group);
+//     }
+//     //console.log(a_group);
+//     return a_group;
+// }
+
+var commentOutInsertKey = function(a_group){
+    a_group = a_group.replace(/INSERT\s+KEY/g,'#INSERT KEY');
+    return a_group;
+}
+
+var commentOutDeleteKey = function(a_group){
+    a_group = a_group.replace(/DELETE\s+KEY/g,'#DELETE KEY');
     return a_group;
 }
 
