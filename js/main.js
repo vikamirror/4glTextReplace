@@ -32,11 +32,11 @@ var setUpReader = function(file){
         var readLineArr = readLine(fileText);
         var fileText_after = readLineArr.join('\n');
         
-        //console.log(fileText_after);
+        console.log(fileText_after);
         clearData();
         //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';
-        download(fileName, fileText_after, mimeType);
+        //download(fileName, fileText_after, mimeType);
     }
 }
 
@@ -207,7 +207,11 @@ var groupLines = function(lines){
             continue;
         }
         if(lines[i].match(/IF\s+g_lang[\s\=]+('|")0('|")\s+THEN/g) !== null){//IF g_lang='0'
-            groupStartIdx.if_g_lang = i;
+            if(lines[i].match(/END IF/g) === null){
+                groupStartIdx.if_g_lang = i;
+            } else {//IF g_lang='0' THEN ... END IF在同一行的狀況
+                linegroup.push(lines[i] + ' #case g_lang');
+            }
             continue;
         }
         if(groupStartIdx.if_g_lang !== 0){
@@ -341,7 +345,7 @@ var pushGroup = function(lines, groupStartIdx, i){
     return aGroup;
 }
 
-var clearData = function(){
+function clearData(){
     variables.dynamicArrOfRecs = [];
     menuCommands = [];//清空第一個4gl的menuCommands
     menuHotKeys = [];//清空第一個4gl的menuHotKeys

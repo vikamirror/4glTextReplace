@@ -80,12 +80,15 @@ var commentOutAttr = function(a_group){
 var onKey_onAction = function(a_group){
     //ON KEY => /ON KEY/g
     //CONTROL-G => /\w+\-\w+/G
-    var onKey = a_group.split('(')[0];
-    var control = a_group.split('(')[1];
-    onKey = onKey.replace('ON KEY','ON ACTION ');
-    control = control.replace('-','');
-    control = control.replace(')','');
-    a_group = onKey + control;
+    console.log(a_group);
+    a_group = a_group.replace(/ON KEY/g,'ON ACTION ');
+    console.log(a_group);
+    // var onKey = a_group.split('(')[0];
+    // var control = a_group.split('(')[1];
+    // onKey = onKey.replace('ON KEY','ON ACTION ');
+    // control = control.replace('-','');
+    // control = control.replace(')','');
+    // a_group = onKey + control;
     //console.log('onKey_onAction',a_group);
     return a_group;
 }

@@ -8,7 +8,7 @@ var beforeMenuString = '';
 var menuWtihBpFunc = function(a_group){
     //console.log(a_group);
     var groupByCommand = a_group.split('COMMAND');//用COMMAND來分組
-
+    
     //因為不知道END MENU END FUNCTION在哪個COMMAND,於是先清空,迴圈跑完再補上
     if(groupByCommand[groupByCommand.length-1].match(/END MENU/g) !== null && groupByCommand[groupByCommand.length-1].match(/END FUNCTION/g) !== null){
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU/g,'');
@@ -92,8 +92,9 @@ var menuWtihBpFunc = function(a_group){
             menuCommands.push('remove');
             continue;
         }
-        if(groupByCommand[i].match(/('|")O.\W+HELP\s\d+/g) !== null){//output
-            var output = blanks_4 + groupByCommand[i].replace(/('|")O.\W+HELP\s\d+/g, 'WHEN "output"');
+        if(groupByCommand[i].match(/('|")O\.\W+('|")/g) !== null){//output
+            var output = cleanHelp(groupByCommand[i]);
+            output = blanks_4 + output.replace(/('|")O\.\W+('|")/g, 'WHEN "output"');
             newMenu.push(output);
             menuCommands.push('output');
             continue;
@@ -123,7 +124,7 @@ var menuWtihBpFunc = function(a_group){
             menuCommands.push('exit');
             continue;
         }
-        if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,30}('|")/g) !== null){//其它
+        if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g) !== null){//其它
             if(groupByCommand[i].match(/HELP\s+\d+/g) !== null){
                 groupByCommand[i] = groupByCommand[i].replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
             }
@@ -164,6 +165,7 @@ var menuWtihBpFunc = function(a_group){
             }else{
                 controln = controln + '\n' + blanks_8 + callAskKey;//如果controln裡面沒有call_xxx_bp("D")
             }
+            controln = commentOut(controln);//controln在大多數情況要註解
             newMenu.push(controln);
             menuCommands.push('controln');
             continue;
@@ -188,6 +190,13 @@ var menuWtihBpFunc = function(a_group){
 //         menuCommands.push(command);
 //     }
 // }
+
+function cleanHelp(aCommand){
+    if(aCommand.match(/HELP\s+\d+/g) !== null){
+        aCommand = aCommand.replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
+    }
+    return aCommand;
+}
 
 function getBeforeDisplay(){
     beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
@@ -235,8 +244,9 @@ var _bpFunc = function(a_group){
     //console.log(newBeforeDisplay);
 
     var beforeRow = blanks_4 + 
-                    'BEFORE ROW' + '\n' + blanks_8 +
-                    'LET l_ac=ARR_CURR()' + '\n';
+                    'BEFORE DISPLAY\n' + blanks_4 +
+                    'BEFORE ROW\n' + blanks_8 +
+                    'LET l_ac=ARR_CURR()\n';
     
     menuHotKeys.sort();//先按字母排序
     menuHotKeys.sort(orderHotKeys);//再按first,previous,jump,next,last
