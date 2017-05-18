@@ -4,11 +4,16 @@ var hasExitWhile = false;
 var addExportToExcel = false;
 var hasHideOption = false;
 var beforeMenuString = '';
+var exportToExcelJudgment = {
+    shallAddExportToExcel: false,
+    alreadyHasExportToExcel: false,
+};
 
 var menuWtihBpFunc = function(a_group){
     //console.log(a_group);
+
     var groupByCommand = a_group.split('COMMAND');//用COMMAND來分組
-    
+
     //因為不知道END MENU END FUNCTION在哪個COMMAND,於是先清空,迴圈跑完再補上
     if(groupByCommand[groupByCommand.length-1].match(/END MENU/g) !== null && groupByCommand[groupByCommand.length-1].match(/END FUNCTION/g) !== null){
         groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU/g,'');
@@ -60,12 +65,6 @@ var menuWtihBpFunc = function(a_group){
             detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
             newMenu.push(detail);
             menuCommands.push('detail');
-            var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\n' +
-                                blanks_8 + "IF cl_prichk('O') THEN\n" +
-                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
-                                blanks_8 + 'END IF\n';
-            newMenu.push(exporttoexcel);
-            menuCommands.push('exporttoexcel');
             continue;
         }
         if(groupByCommand[i].match(/('|")A.\W+HELP\s\d+/g) !== null){//add
@@ -118,6 +117,15 @@ var menuWtihBpFunc = function(a_group){
             continue;
         }
         if(groupByCommand[i].match(/('|")Esc.\S+('|")/g) !== null){//Esc
+            if(exportToExcelJudgment.shallAddExportToExcel === true && exportToExcelJudgment.alreadyHasExportToExcel === false){//在exit上方判斷是否加上exportToExcel
+                var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\n' +
+                                blanks_8 + "IF cl_prichk('O') THEN\n" +
+                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
+                                blanks_8 + 'END IF\n';
+                newMenu.push(exporttoexcel);
+                menuCommands.push('exporttoexcel');
+                exportToExcelJudgment.alreadyHasExportToExcel = true;
+            }
             var exit = blanks_4 + groupByCommand[i].replace(/('|")Esc.\S+('|")/g, 'WHEN "exit"');
             exit = exit.replace(/EXIT MENU/g, 'EXIT WHILE');
             newMenu.push(exit);
@@ -167,7 +175,7 @@ var menuWtihBpFunc = function(a_group){
             }
             controln = commentOut(controln);//controln在大多數情況要註解
             newMenu.push(controln);
-            menuCommands.push('controln');
+            //menuCommands.push('controln');
             continue;
         }
         if(groupByCommand[i].toLowerCase().match(/key\(control\-g\)/g) !== null){//熱鍵controlg
@@ -199,7 +207,7 @@ function cleanHelp(aCommand){
 }
 
 function getBeforeDisplay(){
-    beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
+    //beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
     // beforeMenuString = beforeMenuString.replace(/BEFORE MENU/g, 'BEFORE DISPLAY');
     // //console.log(beforeMenuString);
     // var newBeforeDisplay = [];
@@ -240,7 +248,7 @@ var _bpFunc = function(a_group){
                   'CALL cl_set_act_visible("accept,cancel", FALSE)' + '\n' + blanks_4 +
                   'DISPLAY ARRAY g_程式變數 TO s_程式變數.* ATTRIBUTE(COUNT=單身筆數, DOUBLECLICK=SELECT, UNBUFFERED)' + '\n';
     
-    var newBeforeDisplay = getBeforeDisplay();
+    //var newBeforeDisplay = getBeforeDisplay();
     //console.log(newBeforeDisplay);
 
     var beforeRow = blanks_4 + 
@@ -320,9 +328,9 @@ var _bpFunc = function(a_group){
     newBp.push('FUNCTION '+fileCode+'_bp(p_ud)');
     newBp.push(newCode);
     newBp.push(g_s_record);
-    if(hasHideOption === true){
-        newBp.push(newBeforeDisplay);
-    }
+    // if(hasHideOption === true){
+    //     newBp.push(newBeforeDisplay);
+    // }
     newBp.push(beforeRow);
     newBp.push(onActions);
     newBp.push(displayIDLE);

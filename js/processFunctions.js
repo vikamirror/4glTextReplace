@@ -5,8 +5,8 @@ var globalCode = function(a_group){
 var dynamicArrOfRec = function(a_group){
     //console.log('dynamicArrOfRec',a_group);
     var g_record = a_group.toLowerCase().match(/g_[\w\_]+/g)[0];
-    
     variables.dynamicArrOfRecs.push(g_record);
+    exportToExcelJudgment.shallAddExportToExcel = true;
     //console.log('variables.dynamicArrOfRecs',variables.dynamicArrOfRecs);
 	a_group = a_group.toLowerCase().replace(/array\[\d+\]\sof\srecord/g,'DYNAMIC ARRAY OF RECORD');
     //console.log('a_group',a_group);
@@ -78,9 +78,6 @@ var commentOutAttr = function(a_group){
 }
 
 var onKey_onAction = function(a_group){
-    //ON KEY => /ON KEY/g
-    //CONTROL-G => /\w+\-\w+/G
-    
     var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
     var onKeyControl = onKeyControl.toUpperCase();
     var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];

@@ -36,7 +36,7 @@ var setUpReader = function(file){
         clearData();
         //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';
-        //download(fileName, fileText_after, mimeType);
+        download(fileName, fileText_after, mimeType);
     }
 }
 
@@ -356,4 +356,8 @@ function clearData(){
     hasCallMenu = false;
     hasHideOption = false;//BeforeMenu有沒有Hide Option
     beforeMenuString = '';
+    exportToExcelJudgment = {
+        shallAddExportToExcel: false,
+        alreadyHasExportToExcel: false,
+    }
 }
