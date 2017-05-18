@@ -32,7 +32,7 @@ var setUpReader = function(file){
         var readLineArr = readLine(fileText);
         var fileText_after = readLineArr.join('\n');
         
-        console.log(fileText_after);
+        //console.log(fileText_after);
         clearData();
         //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';

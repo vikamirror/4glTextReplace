@@ -80,9 +80,22 @@ var commentOutAttr = function(a_group){
 var onKey_onAction = function(a_group){
     //ON KEY => /ON KEY/g
     //CONTROL-G => /\w+\-\w+/G
-    console.log(a_group);
-    a_group = a_group.replace(/ON KEY/g,'ON ACTION ');
-    console.log(a_group);
+    
+    var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
+    var onKeyControl = onKeyControl.toUpperCase();
+    var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
+    //console.log(commandKey);
+    commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
+    commandKey = commandKey.replace(/\)/g,'');
+    //console.log(commandKey);
+    a_group = a_group.replace(/ON KEY\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
+    a_group = a_group.replace(/ON KEY\(control-\w\)/g,'ON ACTION ' + commandKey);//
+
+    //a_group = a_group.replace(/\(CONTROL-\w\)/g,commandKey);
+    //console.log(a_group);
+    //a_group = a_group.replace(/ON KEY/g,'ON ACTION ');
+    // a_group = a_group.replace(/\(CONTROL-/g,'CONTROL');
+    //console.log(a_group);
     // var onKey = a_group.split('(')[0];
     // var control = a_group.split('(')[1];
     // onKey = onKey.replace('ON KEY','ON ACTION ');
