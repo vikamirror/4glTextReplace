@@ -51,12 +51,6 @@ var menuWtihoutBp = function(a_group){
             var detail = blanks_4 + groupByCommand[i].replace(/('|")B.\W+HELP\s\d+/g, onAction_detail);
             detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
             newMenu.push(detail);
-            var exporttoexcel = blanks_6 + 'ON ACTION exporttoexcel\n' +
-                                blanks_8 + 'LET g_action="exporttoexcel"\n' + 
-                                blanks_8 + "IF cl_prichk('O') THEN\n" +
-                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
-                                blanks_8 + 'END IF\n';
-            newMenu.push(exporttoexcel);
             continue;
        }
        if(groupByCommand[i].match(/('|")A.\W+HELP\s\d+/g) !== null){//add
@@ -87,10 +81,11 @@ var menuWtihoutBp = function(a_group){
             newMenu.push(remove);
             continue;
        }
-       if(groupByCommand[i].match(/('|")O.\W+HELP\s\d+/g) !== null){//output
+       if(groupByCommand[i].match(/('|")O\.\W+('|")/g) !== null){//output
             var onAction_output = 'ON ACTION output' + '\n' +
                     blanks_12 + 'LET g_action="output"\n';
-            var output = blanks_4 + groupByCommand[i].replace(/('|")O.\W+HELP\s\d+/g, onAction_output);
+            var output = cleanHelp(groupByCommand[i]);
+            output = blanks_4 + output.replace(/('|")O\.\W+('|")/g, onAction_output);
             newMenu.push(output);
             continue;
        }
@@ -102,6 +97,15 @@ var menuWtihoutBp = function(a_group){
             continue;
        }
        if(groupByCommand[i].match(/('|")Esc.\S+('|")/g) !== null){//exit
+            if(exportToExcelJudgment.shallAddExportToExcel === true && exportToExcelJudgment.alreadyHasExportToExcel === false){//在exit上方判斷是否加上exportToExcel
+                var exporttoexcel = blanks_6 + 'ON ACTION exporttoexcel\n' +
+                                blanks_8 + 'LET g_action="exporttoexcel"\n' + 
+                                blanks_8 + "IF cl_prichk('O') THEN\n" +
+                                blanks_12 + '#CALL cl_export_to_excel(ui.Interface.getRootNode(),base.TypeInfo.create(g_fac),"","")\n' +
+                                blanks_8 + 'END IF\n';
+                newMenu.push(exporttoexcel);
+                exportToExcelJudgment.alreadyHasExportToExcel = true;
+            }
             var onAction_exit = 'ON ACTION exit\n' +
                 blanks_12 + 'LET g_action="exit"\n' + blanks_8;
             var exit = blanks_4 + groupByCommand[i].replace(/('|")Esc.\S+('|")/g, onAction_exit);
@@ -172,10 +176,10 @@ var menuWtihoutBp = function(a_group){
             newMenu.push(controlg);
             continue;
         }
-        if(groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g) !== null){//其它
-            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\W+('|")/g)[0];
+        if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g) !== null){//其它
+            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g)[0];
             var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
-            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\W+('|")/g, 'ON ACTION '+trimUserDefined);
+            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,22}('|")/g, 'ON ACTION '+trimUserDefined);
             newMenu.push(others);
             continue;
         }
@@ -187,6 +191,6 @@ var menuWtihoutBp = function(a_group){
               'END FUNCTION';
     newMenu.push(end);
     newMenu = newMenu.join('\n');
-    //console.log(newMenu);
+    console.log(newMenu);
     return newMenu;
 }
