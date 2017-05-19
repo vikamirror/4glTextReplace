@@ -191,6 +191,6 @@ var menuWtihoutBp = function(a_group){
               'END FUNCTION';
     newMenu.push(end);
     newMenu = newMenu.join('\n');
-    console.log(newMenu);
+    //console.log(newMenu);
     return newMenu;
 }

@@ -78,28 +78,22 @@ var commentOutAttr = function(a_group){
 }
 
 var onKey_onAction = function(a_group){
-    var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
-    var onKeyControl = onKeyControl.toUpperCase();
-    var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
-    //console.log(commandKey);
-    commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
-    commandKey = commandKey.replace(/\)/g,'');
-    //console.log(commandKey);
-    a_group = a_group.replace(/ON KEY\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
-    a_group = a_group.replace(/ON KEY\(control-\w\)/g,'ON ACTION ' + commandKey);//
-
-    //a_group = a_group.replace(/\(CONTROL-\w\)/g,commandKey);
-    //console.log(a_group);
-    //a_group = a_group.replace(/ON KEY/g,'ON ACTION ');
-    // a_group = a_group.replace(/\(CONTROL-/g,'CONTROL');
-    //console.log(a_group);
-    // var onKey = a_group.split('(')[0];
-    // var control = a_group.split('(')[1];
-    // onKey = onKey.replace('ON KEY','ON ACTION ');
-    // control = control.replace('-','');
-    // control = control.replace(')','');
-    // a_group = onKey + control;
-    //console.log('onKey_onAction',a_group);
+    if(a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
+        var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
+        var onKeyControl = onKeyControl.toUpperCase();
+        var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
+        //console.log(commandKey);
+        commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
+        commandKey = commandKey.replace(/\)/g,'');
+        //console.log(commandKey);
+        a_group = a_group.replace(/ON KEY\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(/ON KEY\(control-\w\)/g,'ON ACTION ' + commandKey);
+    }
+    
+    if(a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g) !== null){//ON KEY(F12)
+        var onKeyF = a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g)[0];
+        a_group = a_group.replace(/ON\s+KEY\(F\d+\)/g, '#'+onKeyF);
+    }
     return a_group;
 }
 
