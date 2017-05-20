@@ -3,12 +3,12 @@ var globalCode = function(a_group){
 }
 
 var dynamicArrOfRec = function(a_group){
-    //console.log('dynamicArrOfRec',a_group);
-    var g_record = a_group.toLowerCase().match(/g_[\w\_]+/g)[0];
+    console.log('dynamicArrOfRec',a_group);
+    var g_record = a_group.toLowerCase().match(/\w+\_\w+/g)[0];
     variables.dynamicArrOfRecs.push(g_record);
     exportToExcelJudgment.shallAddExportToExcel = true;
     //console.log('variables.dynamicArrOfRecs',variables.dynamicArrOfRecs);
-	a_group = a_group.toLowerCase().replace(/array\[\d+\]\sof\srecord/g,'DYNAMIC ARRAY OF RECORD');
+	a_group = a_group.toLowerCase().replace(/array\[\d+\]\s+of\s+record/g,'DYNAMIC ARRAY OF RECORD');
     //console.log('a_group',a_group);
     return a_group;
 }

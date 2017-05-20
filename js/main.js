@@ -74,7 +74,7 @@ var getProcessFunctions = function(a_group){
     if(a_group.toUpperCase().includes('CLEAR FORM')){
         processFunctions.push(clearForm);
     }
-    if(a_group.toLowerCase().match(/g_\w+\s+array\[\d+\]\sof\srecord/g) !== null){
+    if(a_group.toLowerCase().match(/\w+\_\w+\s+array\[\d+\]\s+of\s+record/g) !== null){
         processFunctions.push(dynamicArrOfRec);           
     }
     if(a_group.includes('ATTRIBUTE')){
