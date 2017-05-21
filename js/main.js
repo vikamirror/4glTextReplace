@@ -7,7 +7,7 @@ var fileCode;
 var hasBpFunc = false;
 var has_b_askkey = false;
 var hasCallMenu = false;//用在g_lang
-
+var mimeType = mimeType || 'application/octet-stream';
 var variables = {
     dynamicArrOfRecs: [],
 }
@@ -27,15 +27,13 @@ var setUpReader = function(file){
     fileReader.readAsText(file);
     fileReader.onload = function(event){
         //console.log('fileName',fileName);
-        //fileCodeRepository = fileCode;
         var fileText = fileReader.result; 
         var readLineArr = readLine(fileText);
         var fileText_after = readLineArr.join('\n');
         
         console.log(fileText_after);
+        //console.log('FINISH');
         clearData();
-        //initRequestFileSystem(fileCode,fileText_after);
-        var mimeType = mimeType || 'application/octet-stream';
         //download(fileName, fileText_after, mimeType);
     }
 }
@@ -71,65 +69,56 @@ var getProcessFunctions = function(a_group){
     // if(a_group.includes('GLOBAL')){
 	// 	processFunctions.push(globalCode);
 	// }
-    if(a_group.toUpperCase().includes('CLEAR FORM')){
+    if(a_group.toUpperCase().match(CLEAR_FORM) !== null){
         processFunctions.push(clearForm);
     }
-    if(a_group.toLowerCase().match(/\w+\_\w+\s+array\[\d+\]\s+of\s+record/g) !== null){
+    if(a_group.toLowerCase().match(ARRAY_OF_RECORD) !== null){
         processFunctions.push(dynamicArrOfRec);           
     }
-    if(a_group.includes('ATTRIBUTE')){
+    if(a_group.match(ATTRIBUTE) !== null){
         processFunctions.push(commentOutAttr);
     }
-    if(a_group.includes('ON KEY')){
+    if(a_group.match(ON_KEY) !== null){
         processFunctions.push(onKey_onAction);
     }
-    if(a_group.toLowerCase().match(/arrow/g) !== null){
+    if(a_group.toLowerCase().match(ARROW) !== null){
         processFunctions.push(commentOutArrow);
     }
-    if(a_group.match(/g_\w+_pageno/g) !== null){
+    if(a_group.match(G_XXX_PAGENO) !== null){
         processFunctions.push(commentOutPageNo);
     }
-    if(a_group.match(/CALL\s+\w+_bp\(('|")D('|")\)/g) !== null){
+    if(a_group.match(CALL_XXX_BP_D) !== null){
         processFunctions.push(commentOutCall_bpD);
     }
-    // if(a_group.match(/PROMPT[\s\w\,\'\:]+FOR/g) !== null){
-    //     processFunctions.push(onIdle_prompt);
-    // }
-    if(a_group.match(/#end prompt for/g) !== null){
+    if(a_group.match(endPromptForTag) !== null){
         processFunctions.push(onIdle_prompt);
     }
-    if(a_group.match(/END INPUT/g) !== null){
+    if(a_group.match(END_INPUT) !== null){
         processFunctions.push(onIdle_endInput);
     }
-    // if(a_group.includes('CONSTRUCT')){
-    //     processFunctions.push(onIdle_construct);
-    // }
-    // if(a_group.match(/ON KEY\(\w+\)\s+NEXT\sFIELD/g) !== null){
-    //     processFunctions.push(commentOutKeyBoardCtrl);
-    // }
-    if(a_group.match(/case g_lang/g) !== null){
+    if(a_group.match(case_g_lang_Tag) !== null){
         processFunctions.push(g_langCase);
     }
-    if(a_group.match(/main\swindow/g) !== null){
+    if(a_group.match(mainWindowTag) !== null){
         processFunctions.push(openWindow);
     }
-    if(a_group.match(/FUNCTION\s+\w+_menu\(/g) !== null){
+    if(a_group.match(MENU_FUNCTION) !== null){
         if(hasBpFunc===true){
             processFunctions.push(menuWtihBpFunc);
         }else{
             processFunctions.push(menuWtihoutBp);
         }
     }
-    if(a_group.match(/FUNCTION \w+_b\(/g) !== null){
+    if(a_group.match(_B_FUNCTION) !== null){
         processFunctions.push(_bBeforeRow);
     }
-    if(a_group.match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){
+    if(a_group.match(_BP_FUNCTION) !== null){
         processFunctions.push(_bpFunc);
     }
-    if(a_group.match(/l_za05\s+CHAR\(40\)/g) !== null){// l_za05 CHAR(80)
+    if(a_group.match(L_ZA05_CHAR) !== null){
         processFunctions.push(l_za05Char);
     }
-    if(a_group.toUpperCase().match(/G_X\s+ARRAY\[\d+\]\s+OF\s+CHAR\(\d+\)/g) !== null){
+    if(a_group.toUpperCase().match(G_X_ARRAY_OF_CHAR) !== null){
         processFunctions.push(l_za05Char);
     }
     if(a_group.match(/INSERT\s+KEY/g) !== null){
@@ -138,43 +127,38 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/DELETE\s+KEY/g) !== null){
         processFunctions.push(commentOutDeleteKey);
     }
-    if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || a_group.match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){
+    if(a_group.match(FOR_CNT_1_TO_ARRNO) !== null || a_group.match(FOR_L_AC_1_TO_ARRNO) !== null){
         processFunctions.push(dryCleaningForLoop);
     }
     return processFunctions;
 }
 
 //把一句話分在一組
-var groupLines = function(lines){
+function groupLines(lines){
     var groupStartIdx = {
-        arrayChar: 0,
         g_lang: 0,
         if_g_lang: 0,
-        _pageNo: 0,
-        inputArray: 0,
-        _bpD: 0,
-        _b_fillFunc: 0,
         menuFunc: 0,
         _bpFunc: 0,
         _bDefine: 0,
-        construct: 0,
         startOpenWindow: 0,
-        hasOpenWindow: 0,
+        hasOpenWindow: false,
         startMenu1: 0,
         startMenu2: 0,
-        insertDeleteOptions: 0,
         dryCleaning: 0,
     }
     var linegroup = [];
+
+    function clearTheLastItem(regex){
+        linegroup[linegroup.length-1] = linegroup[linegroup.length-1].replace(regex, '');
+    }
    //console.log(lines);
     for(var i=0; i<lines.length; i++){
-        
-        if(groupStartIdx.hasOpenWindow === 0){
-            if(lines[i].match(/OPEN\sWINDOW\s(\S|)+\sAT/g) !== null){//OPEN WINDOW
-                if(lines[i].match(/ATTRIBUTE/g) !== null){
-                    linegroup.push(lines[i] + ' #main window');
-                    //console.log('openWindow',lines[i] + ' #main window');
-                    groupStartIdx.hasOpenWindow = 1;
+        if(groupStartIdx.hasOpenWindow === false){
+            if(lines[i].match(OPEN_WINDOW_AT) !== null){//OPEN WINDOW
+                if(lines[i].match(ATTRIBUTE) !== null){
+                    linegroup.push(lines[i] + mainWindowTag);
+                    groupStartIdx.hasOpenWindow = true;
                 } else {
                     groupStartIdx.startOpenWindow = i;
                 }
@@ -182,108 +166,104 @@ var groupLines = function(lines){
             }
         }
         if(groupStartIdx.startOpenWindow !== 0){
-            if(lines[i].match(/ATTRIBUTE/g) !== null){
+            if(lines[i].match(ATTRIBUTE) !== null){
                 var openWindow = pushGroup(lines, groupStartIdx.startOpenWindow, i);
-                linegroup.push(openWindow + ' #main window');
-                //console.log('openWindow',openWindow + ' #main window');
+                linegroup.push(openWindow + mainWindowTag);
                 groupStartIdx.startOpenWindow = 0;
-                groupStartIdx.hasOpenWindow = 1;
+                groupStartIdx.hasOpenWindow = true;
             }
             continue;
         }
-        if(lines[i].match(/WHEN\sg_lang[\s\=]+('|")0/g) !== null){//WHEN g_lang='0'
+        if(lines[i].match(WHEN_G_LANG_EQUAL_TO_ZERO) !== null){//WHEN g_lang='0'
             groupStartIdx.g_lang = i-1;
-            var lastGroupOfLinegroup = linegroup[linegroup.length-1];
-            linegroup[linegroup.length-1] = lastGroupOfLinegroup.replace('CASE','');//清除上一行已經加入lineGroup的句子
+            clearTheLastItem(CASE);
             continue;
         }
         if(groupStartIdx.g_lang !== 0){
-            if(lines[i].includes('END CASE')){
+            if(lines[i].match(END_CASE) !== null){
                 var g_lang = pushGroup(lines, groupStartIdx.g_lang, i);
-                linegroup.push(g_lang + ' #case g_lang');
-                //console.log('g_lang',g_lang);
+                linegroup.push(g_lang + case_g_lang_Tag);
                 groupStartIdx.g_lang = 0;
             }
             continue;
         }
-        if(lines[i].match(/IF\s+g_lang[\s\=]+('|")0('|")\s+THEN/g) !== null){//IF g_lang='0'
-            if(lines[i].match(/END IF/g) === null){
+        if(lines[i].match(IF_G_LANG_EQUAL_TO_ZERO) !== null){//IF g_lang='0'
+            if(lines[i].match(END_IF) === null){
                 groupStartIdx.if_g_lang = i;
             } else {//IF g_lang='0' THEN ... END IF在同一行的狀況
-                linegroup.push(lines[i] + ' #case g_lang');
+                linegroup.push(lines[i] + case_g_lang_Tag);
             }
             continue;
         }
         if(groupStartIdx.if_g_lang !== 0){
-            if(lines[i].includes('END IF')){
+            if(lines[i].match(END_IF) !== null){
                 var if_g_lang = pushGroup(lines, groupStartIdx.if_g_lang, i);
-                linegroup.push(if_g_lang + ' #case g_lang');
-                //console.log('g_lang',g_lang);
+                linegroup.push(if_g_lang + case_g_lang_Tag);
                 groupStartIdx.if_g_lang = 0;
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION\s+\w+_menu\(/g) !== null){//menu
+        if(lines[i].match(MENU_FUNCTION) !== null){//menu
             groupStartIdx.menuFunc = i;
             continue;
         }
         if(groupStartIdx.menuFunc !== 0){
-            if(lines[i].includes('END FUNCTION')){
+            if(lines[i].match(END_FUNCTION) !== null){
                 var menu = pushGroup(lines, groupStartIdx.menuFunc, i);
                 linegroup.push(menu);
                 groupStartIdx.menuFunc = 0;
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION \w+_b\(/g) !== null) {//_b Define
+        if(lines[i].match(_B_FUNCTION) !== null) {//_b Define
             groupStartIdx._bDefine = i;
             continue;
         }
         if(groupStartIdx._bDefine !== 0){
-            if(lines[i].match(/BEFORE ROW/g) !== null){//BEFORE ROW
+            if(lines[i].match(BEFORE_ROW) !== null){//BEFORE ROW
                var _bHead = pushGroup(lines, groupStartIdx._bDefine, i);
                linegroup.push(_bHead);
                groupStartIdx._bDefine = 0;
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){//bp
+        if(lines[i].match(_BP_FUNCTION) !== null){//bp
             groupStartIdx._bpFunc = i;
             hasBpFunc = true;
             continue;
         }
         if(groupStartIdx._bpFunc !== 0){
-            if(lines[i].includes('END FUNCTION')){
+            if(lines[i].match(END_FUNCTION) !== null){
                 var _bp = pushGroup(lines, groupStartIdx._bpFunc, i);
                 linegroup.push(_bp);
                 groupStartIdx._bpFunc = 0;
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION\s+\w+_menu1\(\)/g) !== null){
+        if(lines[i].match(MENU_FUNCTION_1) !== null){
             groupStartIdx.startMenu1 = i;
             continue;
         }
         if(groupStartIdx.startMenu1 !== 0){
-            if(lines[i].match(/END\s+FUNCTION/g) !== null){
-                var menu1 = pushGroup(lines, groupStartIdx.startMenu1, i);
+            if(lines[i].match(END_FUNCTION) !== null){
+                //var menu1 = pushGroup(lines, groupStartIdx.startMenu1, i);
                 groupStartIdx.startMenu1 = 0;
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION\s+\w+_menu2\(\)/g) !== null){
+        if(lines[i].match(MENU_FUNCTION_2) !== null){
             groupStartIdx.startMenu2 = i;
             continue;
         }
         if(groupStartIdx.startMenu2 !== 0){
-            if(lines[i].match(/END\s+FUNCTION/g) !== null){
-                var menu2 = pushGroup(lines, groupStartIdx.startMenu2, i);
+            if(lines[i].match(END_FUNCTION) !== null){
+                //var menu2 = pushGroup(lines, groupStartIdx.startMenu2, i);
                 groupStartIdx.startMenu2 = 0;
             }
             continue;
         }
-        if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || lines[i].match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
-            if(lines[i].match(/END FOR/g) !== null){//處理乾洗FOR...END FOR同一行的狀況
+        if(lines[i].match(FOR_CNT_1_TO_ARRNO) !== null || lines[i].match(FOR_L_AC_1_TO_ARRNO) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
+            if(lines[i].match(END_FOR) !== null){//處理乾洗FOR...END FOR同一行的狀況
                 linegroup.push(lines[i]);
             } else {
                 groupStartIdx.dryCleaning = i;
@@ -291,54 +271,38 @@ var groupLines = function(lines){
             continue;
         }
         if(groupStartIdx.dryCleaning !== 0){//乾洗
-            if(lines[i].match(/END FOR/g) !== null){
+            if(lines[i].match(END_FOR) !== null){
                 var dryCleaning = pushGroup(lines, groupStartIdx.dryCleaning, i);
                 linegroup.push(dryCleaning);
                 groupStartIdx.dryCleaning = 0;
             }
             continue;
         }
-        if(lines[i].toUpperCase().match(/PROMPT/g) !== null){//Prompt, 含換行的FOR
-           //console.log(lines[i]);
-            if(lines[i].toUpperCase().match(/FOR/g) !== null){
-                linegroup.push(lines[i] + ' #end prompt for');
-            }else if(lines[i+1].toUpperCase().match(/FOR/g) !== null){
+        if(lines[i].toUpperCase().match(PROMPT) !== null){//Prompt, 含換行的FOR
+            if(lines[i].toUpperCase().match(FOR) !== null){
+                linegroup.push(lines[i] + endPromptForTag);
+            }else if(lines[i+1].toUpperCase().match(FOR) !== null){
                 var promptFor = pushGroup(lines, i, i+1);       
-                linegroup.push(promptFor + ' #end prompt for');
+                linegroup.push(promptFor + endPromptForTag);
                 lines[i+1] = '';//清除下一行,比避免line[i+1]被加進linegroup,Prompt會有兩個FOR l_abso...之類的
             }else{
                 linegroup.push(lines[i]);
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION\s\w+_b_askkey\(/g) !== null){//有xxx_b_askkey()
+        if(lines[i].match(_B_ASKKEY) !== null){//有xxx_b_askkey()
             has_b_askkey = true;
             linegroup.push(lines[i]);
             continue;
         }
-        // if(lines[i].match(/INSERT\s+KEY\s+F1/g) !== null){//OPTIONS INSERT KEY F1, DELETE KEY F2
-        //     linegroup[linegroup.length-1] = '';
-        //     groupStartIdx.insertDeleteOptions = i-1;
-        //     continue;
-        // }
-        // if(groupStartIdx.insertDeleteOptions !== 0){//OPTIONS INSERT KEY F1, DELETE KEY F2
-        //     if(lines[i].match(/DELETE\s+KEY\s+F2/g) !== null){
-        //         var options = pushGroup(lines, groupStartIdx.insertDeleteOptions, i);
-        //         //console.log(options);
-        //         linegroup.push(options);
-        //         groupStartIdx.insertDeleteOptions = 0;
-        //     }
-        //     continue;
-        // }
         linegroup.push(lines[i]);
-    } 
+    }
     return linegroup;
 }
 
 //同一組的字串接在一起
-var pushGroup = function(lines, groupStartIdx, i){
+function pushGroup(lines, groupStartIdx, i){
     var aGroup = '';
-
     for(var j=groupStartIdx; j<i+1; j++){
         aGroup += lines[j] + '\n';
     }

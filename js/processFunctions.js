@@ -3,12 +3,14 @@ var globalCode = function(a_group){
 }
 
 var dynamicArrOfRec = function(a_group){
-    console.log('dynamicArrOfRec',a_group);
-    var g_record = a_group.toLowerCase().match(/\w+\_\w+/g)[0];
-    variables.dynamicArrOfRecs.push(g_record);
+    if(a_group.match(SR) !== null){
+        return;
+    }
+    var programVariable = a_group.toLowerCase().match(PROGRAM_VARIABLE)[0];
+    variables.dynamicArrOfRecs.push(programVariable);
     exportToExcelJudgment.shallAddExportToExcel = true;
     //console.log('variables.dynamicArrOfRecs',variables.dynamicArrOfRecs);
-	a_group = a_group.toLowerCase().replace(/array\[\d+\]\s+of\s+record/g,'DYNAMIC ARRAY OF RECORD');
+	a_group = a_group.toLowerCase().replace(ARRAY_OF_RECORD,'DYNAMIC ARRAY OF RECORD');
     //console.log('a_group',a_group);
     return a_group;
 }
@@ -26,7 +28,7 @@ var clearForm = function(a_group){
 
 var g_langCase = function(a_group){
     a_group = commentOut(a_group);
-    a_group = a_group.replace(/#case g_lang/g,'');
+    a_group = a_group.replace(case_g_lang_Tag,'');
     //console.log(a_group);
     if(hasCallMenu === false){
         var callMenu =  a_group.match(/[\w\d]+_menu\(\)/g)[0];
@@ -161,18 +163,6 @@ var commentOutPageNo = function(a_group){
     if(a_group.match(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g) !== null){//LET g_bmp2_pageno = 0 || 1
         a_group = a_group.replace(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g,'');
     }
-    // var pageNoArr = a_group.match(/LET\s+g_\w+_pageno[\s\=]+0/g);
-    // for(var i=0; i<pageNoArr.length; i++){
-    //     //pageNoArr[i] = pageNoArr[i].replace(/LET\s+g_\w+_pageno[\s\=]+0/g, '#'+pageNoArr[i]);
-    //     a_group = a_group.replace(/LET\s+g_\w+_pageno[\s\=]+0/g, '#'+pageNoArr[i]);
-    // }
-    // if(a_group.match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g) !== null){
-    //     var callBp_D_arr = a_group.match(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g);
-    //     for(var i=0; i<callBp_D_arr.length; i++){
-    //         //pageNoArr[i] = pageNoArr[i].replace(/LET\s+g_\w+_pageno[\s\=]+0/g, '#'+pageNoArr[i]);
-    //         a_group = a_group.replace(/CALL\s+[\d\w]+_bp\(('|")D('|")\)/g, '#'+callBp_D_arr[i]);
-    //     }
-    // }
     
     return a_group;
 }
@@ -185,14 +175,6 @@ var commentOutCall_bpD = function(a_group){
     //console.log(a_group);
     return a_group;
 }
-
-// var commentOutInsertDeleteOption = function(a_group){
-//     if(a_group.match(/INPUT ARRAY/g) === null){//沒有INPUT ARRAY, 排除FUNCTION _b()
-//         a_group = commentOut(a_group);
-//     }
-//     //console.log(a_group);
-//     return a_group;
-// }
 
 var commentOutInsertKey = function(a_group){
     a_group = a_group.replace(/INSERT\s+KEY/g,'#INSERT KEY');
