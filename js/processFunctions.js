@@ -31,7 +31,7 @@ var g_langCase = function(a_group){
     a_group = a_group.replace(case_g_lang_Tag,'');
     //console.log(a_group);
     if(hasCallMenu === false){
-        var callMenu =  a_group.match(/[\w\d]+_menu\(\)/g)[0];
+        var callMenu =  a_group.match(FILENAME_MENU)[0];
         a_group = a_group + '\n' + blanks_4 + 'CALL ' + callMenu;
         hasCallMenu = true;
     }
@@ -40,8 +40,8 @@ var g_langCase = function(a_group){
 
 var openWindow = function(a_group){
     var cl_ui_init = '\n' + blanks_4 + 'CALL cl_ui_init()' + '\n';
-    a_group = a_group.replace(/#main window/g,'');
-    a_group = a_group.replace(/ATTRIBUTE\(\S+\)/g, '#ATTRIBUTE' + cl_ui_init);
+    a_group = a_group.replace(mainWindowTag,'');
+    a_group = a_group.replace(ATTRIBUTE_COLOR, '#ATTRIBUTE' + cl_ui_init);
     //console.log(a_group);
     return a_group;
 }
@@ -74,42 +74,46 @@ var outFunc = function(a_group){
 
 var commentOutAttr = function(a_group){
     //var attrRegex = /ATTRIBUTE/g;
-    a_group = a_group.replace('ATTRIBUTE', '#ATTRIBUTE');
+    a_group = a_group.replace(ATTRIBUTE, '#ATTRIBUTE');
     //console.log('attr',a_group);
     return a_group;
 }
 
 var onKey_onAction = function(a_group){
-    if(a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
-        var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
+    if(a_group.toUpperCase().match(ON_KEY_CONTROL_X) !== null){//ON KEY(CONTROL-X)
+        var onKeyControl = a_group.toUpperCase().match(ON_KEY_CONTROL_X)[0];
         var onKeyControl = onKeyControl.toUpperCase();
-        var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
+        var commandKey = onKeyControl.match(CONTROL_X)[0];
         //console.log(commandKey);
         commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
         commandKey = commandKey.replace(/\)/g,'');
         //console.log(commandKey);
-        a_group = a_group.replace(/ON KEY\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
-        a_group = a_group.replace(/ON KEY\(control-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(ON_KEY_CONTROL_X,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(ON_KEY_control_X,'ON ACTION ' + commandKey);
     }
     
-    if(a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g) !== null){//ON KEY(F12)
-        var onKeyF = a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g)[0];
-        a_group = a_group.replace(/ON\s+KEY\(F\d+\)/g, '#'+onKeyF);
+    if(a_group.toUpperCase().match(ON_KEY_FXX) !== null){//ON KEY(F12)
+        var onKeyF = a_group.toUpperCase().match(ON_KEY_FXX)[0];
+        a_group = a_group.replace(ON_KEY_FXX, '#'+onKeyF);
     }
     return a_group;
 }
 
 var commentOutArrow = function(a_group){
     //console.log(a_group);
-    var matchLine = a_group.match(/[\S\s]+arrow/g)[0];
-    a_group = a_group.replace(/[\S\s]+arrow/g, '#'+ matchLine);
+    var matchLine = a_group.match(LINE_HAS_ARROW)[0];
+    a_group = a_group.replace(LINE_HAS_ARROW, '#'+ matchLine);
     //console.log(a_group);
     return a_group;
 }
 
 var onIdle_endInput = function(a_group){  
-    var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' + blanks_8 + 'CONTINUE INPUT\n' + blanks_4 + 'END INPUT';
-    a_group = a_group.replace(/END INPUT/g, onIdle);
+    var onIdle = '\n' + blanks_4 + 
+                 'ON IDLE g_idle\n' + blanks_8 + 
+                 'CALL cl_on_idle()\n' + blanks_8 + 
+                 'CONTINUE INPUT\n' + blanks_4 + 
+                 'END INPUT';
+    a_group = a_group.replace(END_INPUT, onIdle);
     //console.log(a_group);
     return a_group;
 }
@@ -132,21 +136,24 @@ var onIdle_construct = function(a_group){
 
 var onIdle_prompt = function(a_group){
     //console.log(a_group);
-    a_group = a_group.replace(/#end prompt for/g,'');
+    a_group = a_group.replace(endPromptForTag,'');
 
-    var onIdle = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 + 'CALL cl_on_idle()\n' +  blanks_8 + 'END PROMPT\n';
+    var onIdle = '\n' + blanks_4 + 
+                 'ON IDLE g_idle\n' + blanks_8 + 
+                 'CALL cl_on_idle()\n' +  blanks_8 + 
+                 'END PROMPT\n';
     a_group = a_group + onIdle;
    //console.log(a_group);
     return a_group;
 }
 
 var l_za05Char = function(a_group){
-    a_group = a_group.replace(/CHAR\(40\)/g,'CHAR(80)');
+    a_group = a_group.replace(CHAR_XX,'CHAR(80)');
     return a_group;
 }
 
 var g_xChar = function(a_group){
-    a_group = a_group.replace(/CHAR\(\d+\)/g,'CHAR(80)');
+    a_group = a_group.replace(CHAR_XX,'CHAR(80)');
     return a_group;
 }
 
@@ -157,11 +164,11 @@ var commentOutKeyBoardCtrl = function(a_group){
 
 var commentOutPageNo = function(a_group){
     //console.log(a_group);
-    if(a_group.match(/g_\w+_pageno\s+SMALLINT/g) !== null){//g_pje_pageno    SMALLINT,
+    if(a_group.match(G_XXX_PAGENO_SMALLINT) !== null){//g_pje_pageno    SMALLINT,
         a_group = '#' + a_group;
     }
-    if(a_group.match(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g) !== null){//LET g_bmp2_pageno = 0 || 1
-        a_group = a_group.replace(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g,'');
+    if(a_group.match(LET_G_XXX_PAGENO_EQUALS_TO_X) !== null){//LET g_bmp2_pageno = 0 || 1
+        a_group = a_group.replace(LET_G_XXX_PAGENO_EQUALS_TO_X,'');
     }
     
     return a_group;
@@ -169,30 +176,30 @@ var commentOutPageNo = function(a_group){
 
 var commentOutCall_bpD = function(a_group){
     //console.log(a_group);
-    if(a_group.match(/CALL\s+\w+_bp\(('|")D('|")\)/g) !== null){//CALL i100_bp("D")
-        a_group = a_group.replace(/CALL\s+\w+_bp\(('|")D('|")\)/g,'');
+    if(a_group.match(CALL_XXX_BP_D) !== null){//CALL i100_bp("D")
+        a_group = a_group.replace(CALL_XXX_BP_D,'');
     }
     //console.log(a_group);
     return a_group;
 }
 
 var commentOutInsertKey = function(a_group){
-    a_group = a_group.replace(/INSERT\s+KEY/g,'#INSERT KEY');
+    a_group = a_group.replace(INSERT_KEY,'#INSERT KEY');
     return a_group;
 }
 
 var commentOutDeleteKey = function(a_group){
-    a_group = a_group.replace(/DELETE\s+KEY/g,'#DELETE KEY');
+    a_group = a_group.replace(DELETE_KEY,'#DELETE KEY');
     return a_group;
 }
 
 var dryCleaningForLoop = function(a_group){
     var clearRecord;
-    if(a_group.match(/INITIALIZE\s+g+\w+/g) !== null){
-        clearRecord = a_group.match(/INITIALIZE\s+g+\w+/g)[0];
-        clearRecord = clearRecord.replace(/INITIALIZE/g,'');
+    if(a_group.match(INITIALIZE_TO_NULL) !== null){
+        clearRecord = a_group.match(INITIALIZE_TO_NULL)[0];
+        clearRecord = clearRecord.replace(INITIALIZE,'');
     }
-    if(a_group.match(/INITIALIZE/g) !== null && a_group.match(/TO NULL/g) !== null){
+    if(a_group.match(INITIALIZE) !== null && a_group.match(TO_NULL) !== null){
         a_group = commentOut(a_group);
         //console.log(a_group);
     }
@@ -241,5 +248,11 @@ var _b_fillFunc = function(a_group){
 
 function commentOut(string){
     return '{' + '\n' + string + '\n' + '}';
+}
+
+//拿掉""
+function clearQuotation(string){
+    //console.log(string);
+    return string.replace(/('|")/g,'');
 }
 

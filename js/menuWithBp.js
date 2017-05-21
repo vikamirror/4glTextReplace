@@ -15,27 +15,27 @@ var menuWtihBpFunc = function(a_group){
     var groupByCommand = a_group.split('COMMAND');//用COMMAND來分組
 
     //因為不知道END MENU END FUNCTION在哪個COMMAND,於是先清空,迴圈跑完再補上
-    if(groupByCommand[groupByCommand.length-1].match(/END MENU/g) !== null && groupByCommand[groupByCommand.length-1].match(/END FUNCTION/g) !== null){
-        groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END MENU/g,'');
-        groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(/END FUNCTION/g,'');
+    if(groupByCommand[groupByCommand.length-1].match(END_MENU) !== null && groupByCommand[groupByCommand.length-1].match(END_FUNCTION) !== null){
+        groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(END_MENU,'');
+        groupByCommand[groupByCommand.length-1] = groupByCommand[groupByCommand.length-1].replace(END_FUNCTION,'');
     }
     //console.log(groupByCommand.join('\n'));
     var newMenu = [];
     for(var i=0; i<groupByCommand.length; i++){
-        if(groupByCommand[i].match(/MENU\s('|"){2}/g) !== null){//如果有MENU ""
+        if(groupByCommand[i].match(MENU_QUOTATION_MARK) !== null){//如果有MENU ""
             var whileTrue = 'WHILE TRUE' + '\n' + 
                             blanks_4 + 'CALL ' + fileCode + '_bp("G")' + '\n' + 
                             blanks_4 + 'CASE g_action' + '\n';
             var head;
             var beforeMenu = '';
-            if(groupByCommand[i].match(/BEFORE MENU/g) !== null){//有BEFORE MENU
+            if(groupByCommand[i].match(BEFORE_MENU) !== null){//有BEFORE MENU
                 head = groupByCommand[i].split('BEFORE MENU')[0];//用BEFORE MENU切割
                 beforeMenu = blanks_4 + 'BEFORE MENU\n' + groupByCommand[i].split('BEFORE MENU')[1];
                 beforeMenuString = beforeMenu;
             }else{
                 head = groupByCommand[i];
             }
-            head = head.replace(/MENU\s('|"){2}/g, whileTrue);    
+            head = head.replace(MENU_QUOTATION_MARK, whileTrue);    
             //console.log(head);
             newMenu.push(head);
             if(beforeMenu !== ''){
@@ -45,78 +45,78 @@ var menuWtihBpFunc = function(a_group){
             }
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(F3\)/g) !== null){//熱鍵f3 忽略
+        if(groupByCommand[i].match(KEY_F3) !== null){//熱鍵f3 忽略
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(F4\)/g) !== null){//熱鍵f4 忽略
+        if(groupByCommand[i].match(KEY_F4) !== null){//熱鍵f4 忽略
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(INTERRUPT\)/g) !== null){//INTERRUPT 忽略
+        if(groupByCommand[i].match(KEY_INTERRUPT) !== null){//INTERRUPT 忽略
             continue;
         }
-        if(groupByCommand[i].match(/('|")Q.\W+HELP\s\d+/g) !== null){//query
-            var query = blanks_4 + groupByCommand[i].replace(/('|")Q.\W+HELP\s\d+/g, 'WHEN "query"');
+        if(groupByCommand[i].match(QUERY_HELP) !== null){//query
+            var query = blanks_4 + groupByCommand[i].replace(QUERY_HELP, 'WHEN "query"');
             newMenu.push(query);
             menuCommands.push('query');
             continue;
         }
-        if(groupByCommand[i].match(/('|")B.\W+HELP\s\d+/g) !== null){//detail
-            var detail = blanks_4 + groupByCommand[i].replace(/('|")B.\W+HELP\s\d+/g, 'WHEN "detail"');
-            detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
+        if(groupByCommand[i].match(DETAIL_HELP) !== null){//detail
+            var detail = blanks_4 + groupByCommand[i].replace(DETAIL_HELP, 'WHEN "detail"');
+            detail = detail.replace(END_IF, 'ELSE LET g_action="" END IF');
             newMenu.push(detail);
             menuCommands.push('detail');
             continue;
         }
-        if(groupByCommand[i].match(/('|")A.\W+HELP\s\d+/g) !== null){//add
-            var add = blanks_4 + groupByCommand[i].replace(/('|")A.\W+HELP\s\d+/g, 'WHEN "add"');
+        if(groupByCommand[i].match(ADD_HELP) !== null){//add
+            var add = blanks_4 + groupByCommand[i].replace(ADD_HELP, 'WHEN "add"');
             newMenu.push(add);
             menuCommands.push('add');
             continue;
         }
-        if(groupByCommand[i].match(/('|")U.\W+HELP\s\d+/g) !== null){//modify
-            var modify = blanks_4 + groupByCommand[i].replace(/('|")U.\W+HELP\s\d+/g, 'WHEN "modify"');
+        if(groupByCommand[i].match(MODIFY_HELP) !== null){//modify
+            var modify = blanks_4 + groupByCommand[i].replace(MODIFY_HELP, 'WHEN "modify"');
             newMenu.push(modify);
             menuCommands.push('modify');
             continue;
         }
-        if(groupByCommand[i].match(/('|")C.\W+HELP\s\d+/g) !== null){//reproduce
-            var reproduce = blanks_4 + groupByCommand[i].replace(/('|")C.\W+HELP\s\d+/g, 'WHEN "reproduce"');
+        if(groupByCommand[i].match(REPRODUCE_HELP) !== null){//reproduce
+            var reproduce = blanks_4 + groupByCommand[i].replace(REPRODUCE_HELP, 'WHEN "reproduce"');
             newMenu.push(reproduce);
             menuCommands.push('reproduce');
             continue;
         }
-        if(groupByCommand[i].match(/('|")R.\W+HELP\s\d+/g) !== null){//remove
-            var remove = blanks_4 + groupByCommand[i].replace(/('|")R.\W+HELP\s\d+/g, 'WHEN "remove"');
+        if(groupByCommand[i].match(REMOVE_HELP) !== null){//remove
+            var remove = blanks_4 + groupByCommand[i].replace(REMOVE_HELP, 'WHEN "remove"');
             newMenu.push(remove);
             menuCommands.push('remove');
             continue;
         }
-        if(groupByCommand[i].match(/('|")O\.\W+('|")/g) !== null){//output
+        if(groupByCommand[i].match(OUTPUT) !== null){//output
             var output = cleanHelp(groupByCommand[i]);
-            output = blanks_4 + output.replace(/('|")O\.\W+('|")/g, 'WHEN "output"');
+            output = blanks_4 + output.replace(OUTPUT, 'WHEN "output"');
             newMenu.push(output);
             menuCommands.push('output');
             continue;
         }
-        if(groupByCommand[i].match(/('|")H.\W+HELP\s\d+/g) !== null){//about
+        if(groupByCommand[i].match(ABOUT_HELP) !== null){//about
             //var about = blanks_4 + groupByCommand[i].replace(/('|")H.\W+HELP\s\d+/g, 'WHEN "about"');
             //newMenu.push(about); 因為bp裡面已經有call showHelp了因此menu中省略
             menuCommands.push('about');
             continue;
         }
-        if(groupByCommand[i].match(/('|")N.\W+HELP\s\d+/g) !== null){//next
-            var next = blanks_4 + groupByCommand[i].replace(/('|")N.\W+HELP\s\d+/g, 'WHEN "next"');
+        if(groupByCommand[i].match(NEXT_HELP) !== null){//next
+            var next = blanks_4 + groupByCommand[i].replace(NEXT_HELP, 'WHEN "next"');
             newMenu.push(next);
             menuHotKeys.push('next');
             continue;
         }
-        if(groupByCommand[i].match(/('|")P.\W+HELP\s\d+/g) !== null){//previous
-            var previous = blanks_4 + groupByCommand[i].replace(/('|")P.\W+HELP\s\d+/g, 'WHEN "previous"');
+        if(groupByCommand[i].match(PREVIOUS_HELP) !== null){//previous
+            var previous = blanks_4 + groupByCommand[i].replace(PREVIOUS_HELP, 'WHEN "previous"');
             newMenu.push(previous);
             menuHotKeys.push('previous');
             continue;
         }
-        if(groupByCommand[i].match(/('|")Esc.\S+('|")/g) !== null){//Esc
+        if(groupByCommand[i].match(ESC) !== null){//Esc
             if(exportToExcelJudgment.shallAddExportToExcel === true && exportToExcelJudgment.alreadyHasExportToExcel === false){//在exit上方判斷是否加上exportToExcel
                 var exporttoexcel = blanks_4 + 'WHEN "exporttoexcel"\n' +
                                 blanks_8 + "IF cl_prichk('O') THEN\n" +
@@ -126,47 +126,45 @@ var menuWtihBpFunc = function(a_group){
                 menuCommands.push('exporttoexcel');
                 exportToExcelJudgment.alreadyHasExportToExcel = true;
             }
-            var exit = blanks_4 + groupByCommand[i].replace(/('|")Esc.\S+('|")/g, 'WHEN "exit"');
-            exit = exit.replace(/EXIT MENU/g, 'EXIT WHILE');
+            var exit = blanks_4 + groupByCommand[i].replace(ESC, 'WHEN "exit"');
+            exit = exit.replace(EXIT_MENU, 'EXIT WHILE');
             newMenu.push(exit);
             menuCommands.push('exit');
             continue;
         }
-        if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g) !== null){//其它
-            if(groupByCommand[i].match(/HELP\s+\d+/g) !== null){
-                groupByCommand[i] = groupByCommand[i].replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
-            }
-            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,30}('|")/g)[0];
-            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,30}('|")/g, 'WHEN '+userDefined);
+        if(groupByCommand[i].match(USER_DEFINED) !== null){//其它
+            groupByCommand[i] = cleanHelp(groupByCommand[i]);
+            var userDefined = blanks_4 + groupByCommand[i].match(USER_DEFINED)[0];
+            var others = blanks_4 + groupByCommand[i].replace(USER_DEFINED, 'WHEN '+userDefined);
             newMenu.push(others);
-            var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
+            var trimUserDefined = clearQuotation(userDefined);//送到ON ACTION,所以拿掉""
             menuCommands.push(trimUserDefined);
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(esc\)/g) !== null){//KEY(esc)
+        if(groupByCommand[i].match(KEY_ESC) !== null){//KEY(esc)
             menuCommands.push('close');
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(('|")\/('|")\)/g) !== null){//jump
-            var jump = blanks_4 + groupByCommand[i].replace(/KEY\(('|")\/('|")\)/g, 'WHEN "jump"');
+        if(groupByCommand[i].match(KEY_JUMP) !== null){//jump
+            var jump = blanks_4 + groupByCommand[i].replace(KEY_JUMP, 'WHEN "jump"');
             newMenu.push(jump);
             menuHotKeys.push('jump');
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(F\)/g) !== null){//熱鍵first
-            var first = blanks_4 + groupByCommand[i].replace(/KEY\(F\)/g, 'WHEN "first"');
+        if(groupByCommand[i].match(KEY_FIRST) !== null){//熱鍵first
+            var first = blanks_4 + groupByCommand[i].replace(KEY_FIRST, 'WHEN "first"');
             newMenu.push(first);
             menuHotKeys.push('first');
             continue;
         }
-        if(groupByCommand[i].match(/KEY\(L\)/g) !== null){//熱鍵last
-            var last = blanks_4 + groupByCommand[i].replace(/KEY\(L\)/g, 'WHEN "last"');
+        if(groupByCommand[i].match(KEY_LAST) !== null){//熱鍵last
+            var last = blanks_4 + groupByCommand[i].replace(KEY_LAST, 'WHEN "last"');
             newMenu.push(last);
             menuHotKeys.push('last');
             continue;
         }
-        if(groupByCommand[i].toUpperCase().match(/KEY\(CONTROL\-N\)/g) !== null){//熱鍵controln
-            var controln = blanks_4 + groupByCommand[i].toUpperCase().replace(/KEY\(CONTROL\-N\)/g, 'WHEN "controln"');
+        if(groupByCommand[i].toUpperCase().match(KEY_CONTROL_N) !== null){//熱鍵controln
+            var controln = blanks_4 + groupByCommand[i].toUpperCase().replace(KEY_CONTROL_N, 'WHEN "controln"');
             var callAskKey = (has_b_askkey ? '' : '#' ) + ('CALL '+ fileCode + '_b_askkey()');//是否有Function xxx_b_askkey()
             if(controln.match(/CALL\s+[\w]+_BP\(\S+\)/g) !==null){
                 controln = controln.replace(/CALL\s+[\w]+_BP\(\S+\)/g, callAskKey);
@@ -178,14 +176,17 @@ var menuWtihBpFunc = function(a_group){
             //menuCommands.push('controln');
             continue;
         }
-        if(groupByCommand[i].toLowerCase().match(/key\(control\-g\)/g) !== null){//熱鍵controlg
-            var controlg = blanks_4 + groupByCommand[i].toLowerCase().replace(/key\(control\-g\)/g, 'WHEN "controlg"');
+        if(groupByCommand[i].toLowerCase().match(KEY_CONTROL_G) !== null){//熱鍵controlg
+            var controlg = blanks_4 + groupByCommand[i].toLowerCase().replace(KEY_CONTROL_G, 'WHEN "controlg"');
             newMenu.push(controlg);
             menuCommands.push('controlg');
             continue;
         }
     }
-    var end = blanks_4 + 'END CASE' + '\n' + blanks_1 + 'END WHILE\n' + 'END FUNCTION';
+    var end = blanks_4 + 
+              'END CASE\n' + blanks_1 + 
+              'END WHILE\n' + 
+              'END FUNCTION';
     newMenu.push(end);
     newMenu = newMenu.join('\n');
     //console.log(newMenu);
@@ -200,8 +201,8 @@ var menuWtihBpFunc = function(a_group){
 // }
 
 function cleanHelp(aCommand){
-    if(aCommand.match(/HELP\s+\d+/g) !== null){
-        aCommand = aCommand.replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
+    if(aCommand.match(HELP_NUMBER) !== null){
+        aCommand = aCommand.replace(HELP_NUMBER,'');//如果有HELP 12345, 清除
     }
     return aCommand;
 }
@@ -232,8 +233,8 @@ var _bpFunc = function(a_group){
     var a_groupArr =  a_group.split('\n');
 
     var g_s_record;
-    if(a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g) !== null){
-        g_s_record = blanks_4 + '#' + a_group.match(/DISPLAY\s+g_\w+\[\w+\].\*\s+TO\s+s_\w+\[\w+\].\*/g)[0] + '\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
+    if(a_group.match(DISPLAY_G_XXX_TO_S_XXX) !== null){
+        g_s_record = blanks_4 + '#' + a_group.match(DISPLAY_G_XXX_TO_S_XXX)[0] + '\n';//抓到DISPLAY g_xxx[l_xxx].* TO s_xxx[l_xxx].*
     }else{
         g_s_record = commentOut(a_group);//應對長得很奇怪的bp()
     }
@@ -261,7 +262,7 @@ var _bpFunc = function(a_group){
 
     var hotKeyArr = [];
     for(var i=0; i<menuHotKeys.length; i++){
-        var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
+        var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + clearQuotation(menuHotKeys[i]) + '\n';
         hotKey = hotKey + blanks_8 +
                 'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
                 'EXIT DISPLAY' + '\n';
@@ -272,7 +273,7 @@ var _bpFunc = function(a_group){
     
     var onActionArr = [];
     for(var i=0; i<menuCommands.length; i++){
-        var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuCommands[i].replace(/"/g,'') + '\n';
+        var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + clearQuotation(menuCommands[i]) + '\n';
         
         if(menuCommands[i]==='detail'){//ON ACTION controln LET l_ac=1
             oneAction = oneAction + blanks_8 + 'LET l_ac=1 \n';
@@ -293,36 +294,14 @@ var _bpFunc = function(a_group){
         onActionArr.push(oneAction);
     }
     
-    //console.log(menuHotKeys);
-    // for(var i=0; i<menuHotKeys.length; i++){
-    //     var action = blanks_4 + 'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
-
-    //     if(menuHotKeys[i]==='jump'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("/")' + '\n' ;
-    //     }
-    //     if(menuHotKeys[i]==='first'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("F")' + '\n' ;
-    //     }
-    //     if(menuHotKeys[i]==='last'){
-    //         action = action + blanks_8 + 'CALL ' + fileCode + '_fetch("L")' + '\n' ;
-    //     }
-    //     if(menuHotKeys[i]==='controlg'){
-    //         action = action + blanks_8 + 'CALL cl_cmdask()'
-    //     }
-    //     if(menuHotKeys[i]!=='controlg'){
-    //         action = action + blanks_8 + 'ACCEPT DISPLAY' + '\n';
-    //     }
-    //     onActionArr.push(action);
-    // }
-
     var onActions = onActionArr.join('\n');
 
-    var displayIDLE = '\n' + blanks_4 + 'ON IDLE g_idle' + '\n' + blanks_8 +
-                      'CALL cl_on_idle()' + '\n' + blanks_8 +
-                      'CONTINUE DISPLAY' + '\n';
+    var displayIDLE = '\n' + blanks_4 + 'ON IDLE g_idle\n' + blanks_8 +
+                      'CALL cl_on_idle()\n' + blanks_8 +
+                      'CONTINUE DISPLAY\n';
 
-    var afterDisplay = blanks_4 + 'AFTER DISPLAY' + '\n' + blanks_8 + 'CONTINUE DISPLAY' + '\n';
-    var endDisplay = blanks_4 + 'END DISPLAY' + '\n' + blanks_4 + 'CALL cl_set_act_visible("accept,cancel", TRUE)'
+    var afterDisplay = blanks_4 + 'AFTER DISPLAY\n' + blanks_8 + 'CONTINUE DISPLAY\n';
+    var endDisplay = blanks_4 + 'END DISPLAY\n' + blanks_4 + 'CALL cl_set_act_visible("accept,cancel", TRUE)'
 
     var newBp = [];
     newBp.push('FUNCTION '+fileCode+'_bp(p_ud)');

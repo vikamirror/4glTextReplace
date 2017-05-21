@@ -20,14 +20,14 @@ var _bBeforeRow = function(a_group){
         hasAuthorityCheck: false,
     }
     for(var i=0; i<a_groupArr.length; i++){
-        if(a_groupArr[i].match(/DEFINE/g) !== null){
-            a_groupArr[i] = a_groupArr[i].replace(/DEFINE/g,defineInsert_delete);
+        if(a_groupArr[i].match(DEFINE) !== null){
+            a_groupArr[i] = a_groupArr[i].replace(DEFINE, defineInsert_delete);
             newGroupArr.push(a_groupArr[i]);
             _bpVariables.startDefine = true;
             continue;
         }
         if(_bpVariables.startDefine === true){
-            if(a_groupArr[i].match(/\w+\s+[\w\(\)\s\.]+,/g) === null){//最後一個define, 沒有逗號]);
+            if(a_groupArr[i].match(LAST_ROW_OF_DEFINE) === null){//最後一個define, 沒有逗號]);
                 a_groupArr[i] = a_groupArr[i] + clean_g_ction;
                 newGroupArr.push(a_groupArr[i]);
                 _bpVariables.startDefine = false;
@@ -36,7 +36,7 @@ var _bBeforeRow = function(a_group){
             }
             continue;
         }
-        if(a_groupArr[i].match(/cl_prichk\(('|")A('|")\)/g) !== null){//IF NOT cl_prichk('A') THEN
+        if(a_groupArr[i].match(CL_PRICHK_A) !== null){//IF NOT cl_prichk('A') THEN
             var allowInsertDeleteTrue = blanks_4 + 'LET l_allow_insert = TRUE\n' +
                                         blanks_4 + 'LET l_allow_delete = TRUE\n';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], allowInsertDeleteTrue + a_groupArr[i]);
@@ -44,43 +44,43 @@ var _bBeforeRow = function(a_group){
             _bpVariables.hasAuthorityCheck = true;
             continue;
         }
-        if(a_groupArr[i].match(/OPTIONS\s+INSERT\s+KEY/g) !== null){//#OPTIONS INSERT KEY F13
+        if(a_groupArr[i].match(OPTIONS_INSERT_KEY) !== null){//#OPTIONS INSERT KEY F13
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], '#' + a_groupArr[i]);
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
-        if(a_groupArr[i].match(/LET\s+l_insert[\s\=]+("|')N("|')/g) !== null){//LET l_allow_insert = FALSE
+        if(a_groupArr[i].match(LET_L_ALLOW_INSERT_FALSE) !== null){//LET l_allow_insert = FALSE
             var allowInsertFalse = '\n' + blanks_8 + 'LET l_allow_insert = FALSE';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], a_groupArr[i] + allowInsertFalse);
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
-        if(a_groupArr[i].match(/OPTIONS\s+DELETE\s+KEY/g) !== null){//#OPTIONS DELETE KEY F13
+        if(a_groupArr[i].match(OPTIONS_DELETE_KEY) !== null){//#OPTIONS DELETE KEY F13
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], '#' + a_groupArr[i]);
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
-        if(a_groupArr[i].match(/LET\s+l_update[\s\=]+("|')N("|')/g) !== null){//LET l_allow_delete = FALSE
+        if(a_groupArr[i].match(LET_L_ALLOW_DELETE_FALSE) !== null){//LET l_allow_delete = FALSE
             var allowDeleteFalse = '\n' + blanks_8 + 'LET l_allow_delete = FALSE';
             a_groupArr[i] = a_groupArr[i].replace(a_groupArr[i], a_groupArr[i] + allowDeleteFalse);
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
-        if(a_groupArr[i].match(/LET\s+g_\w+_pageno[\s\=]+1/g) !== null){//註解 LET g_pje_pageno = 1
-            a_groupArr[i] = a_groupArr[i].replace(/LET\s+g_\w+_pageno[\s\=]+1/, '#'+a_groupArr[i]);
+        // if(a_groupArr[i].match(/LET\s+g_\w+_pageno[\s\=]+1/g) !== null){//註解 LET g_pje_pageno = 1
+        //     a_groupArr[i] = a_groupArr[i].replace(/LET\s+g_\w+_pageno[\s\=]+1/, '#'+a_groupArr[i]);
+        //     newGroupArr.push(a_groupArr[i]);
+        //     continue;
+        // }
+        if(a_groupArr[i].match(HELP_NUMBER) !== null){
+            a_groupArr[i] = a_groupArr[i].replace(HELP_NUMBER,'');
             newGroupArr.push(a_groupArr[i]);
             continue;
         }
-        if(a_groupArr[i].match(/HELP \d+/g) !== null){
-            a_groupArr[i] = a_groupArr[i].replace(/HELP \d+/g,'');
-            newGroupArr.push(a_groupArr[i]);
-            continue;
-        }
-        if(a_groupArr[i].match(/BEFORE ROW/g) !== null){
+        if(a_groupArr[i].match(BEFORE_ROW) !== null){
             if(_bpVariables.hasAuthorityCheck === false){
-                a_groupArr[i] = a_groupArr[i].replace(/BEFORE ROW/g,normalAttribute);
+                a_groupArr[i] = a_groupArr[i].replace(BEFORE_ROW, normalAttribute);
             }else{
-                a_groupArr[i] = a_groupArr[i].replace(/BEFORE ROW/g,hasAuthorityCheckAttribute);
+                a_groupArr[i] = a_groupArr[i].replace(BEFORE_ROW, hasAuthorityCheckAttribute);
             }
             newGroupArr.push(a_groupArr[i]);
             continue;
