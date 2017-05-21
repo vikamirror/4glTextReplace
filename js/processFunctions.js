@@ -1,8 +1,8 @@
-var globalCode = function(a_group){
+function globalCode(a_group){
     return 'GLOBALS ' + '"../../config/tiptop.inc"';
 }
 
-var dynamicArrOfRec = function(a_group){
+function dynamicArrOfRec(a_group){
     if(a_group.match(SR) !== null){
         return;
     }
@@ -15,7 +15,7 @@ var dynamicArrOfRec = function(a_group){
     return a_group;
 }
 
-var clearForm = function(a_group){
+function clearForm(a_group){
     //console.log('clearForm',a_group);
     if(variables.dynamicArrOfRecs.length > 0){
         for(var i=0; i<variables.dynamicArrOfRecs.length; i++){
@@ -26,7 +26,7 @@ var clearForm = function(a_group){
     return a_group;
 }
 
-var g_langCase = function(a_group){
+function g_langCase(a_group){
     a_group = commentOut(a_group);
     a_group = a_group.replace(case_g_lang_Tag,'');
     //console.log(a_group);
@@ -38,7 +38,7 @@ var g_langCase = function(a_group){
 	return a_group;
 }
 
-var openWindow = function(a_group){
+function openWindow(a_group){
     var cl_ui_init = '\n' + blanks_4 + 'CALL cl_ui_init()' + '\n';
     a_group = a_group.replace(mainWindowTag,'');
     a_group = a_group.replace(ATTRIBUTE_COLOR, '#ATTRIBUTE' + cl_ui_init);
@@ -46,7 +46,7 @@ var openWindow = function(a_group){
     return a_group;
 }
 
-var outFunc = function(a_group){
+function outFunc(a_group){
     var outFuncLines = a_group.split('\n');
     for(var i=0; i<outFuncLines.length; i++){
         if(outFuncLines[i].match(/l_za\d+\w+\s+CHAR\(\d+\)/g) !== null){
@@ -72,14 +72,14 @@ var outFunc = function(a_group){
     return a_group;
 }
 
-var commentOutAttr = function(a_group){
+function commentOutAttr(a_group){
     //var attrRegex = /ATTRIBUTE/g;
     a_group = a_group.replace(ATTRIBUTE, '#ATTRIBUTE');
     //console.log('attr',a_group);
     return a_group;
 }
 
-var onKey_onAction = function(a_group){
+function onKey_onAction(a_group){
     if(a_group.toUpperCase().match(ON_KEY_CONTROL_X) !== null){//ON KEY(CONTROL-X)
         var onKeyControl = a_group.toUpperCase().match(ON_KEY_CONTROL_X)[0];
         var onKeyControl = onKeyControl.toUpperCase();
@@ -99,7 +99,7 @@ var onKey_onAction = function(a_group){
     return a_group;
 }
 
-var commentOutArrow = function(a_group){
+function commentOutArrow(a_group){
     //console.log(a_group);
     var matchLine = a_group.match(LINE_HAS_ARROW)[0];
     a_group = a_group.replace(LINE_HAS_ARROW, '#'+ matchLine);
@@ -107,7 +107,7 @@ var commentOutArrow = function(a_group){
     return a_group;
 }
 
-var onIdle_endInput = function(a_group){  
+function onIdle_endInput(a_group){  
     var onIdle = '\n' + blanks_4 + 
                  'ON IDLE g_idle\n' + blanks_8 + 
                  'CALL cl_on_idle()\n' + blanks_8 + 
@@ -118,7 +118,7 @@ var onIdle_endInput = function(a_group){
     return a_group;
 }
 
-var onIdle_construct = function(a_group){
+function onIdle_construct(a_group){
     var a_groupArr =  a_group.split('\n');
     for(var i=0; i<a_groupArr.length; i++){
         if(a_groupArr[i].includes('INT_FLAG')){
@@ -134,7 +134,7 @@ var onIdle_construct = function(a_group){
     return a_group;
 }
 
-var onIdle_prompt = function(a_group){
+function onIdle_prompt(a_group){
     //console.log(a_group);
     a_group = a_group.replace(endPromptForTag,'');
 
@@ -147,22 +147,22 @@ var onIdle_prompt = function(a_group){
     return a_group;
 }
 
-var l_za05Char = function(a_group){
+function l_za05Char(a_group){
     a_group = a_group.replace(CHAR_XX,'CHAR(80)');
     return a_group;
 }
 
-var g_xChar = function(a_group){
+function g_xChar(a_group){
     a_group = a_group.replace(CHAR_XX,'CHAR(80)');
     return a_group;
 }
 
-var commentOutKeyBoardCtrl = function(a_group){
+function commentOutKeyBoardCtrl(a_group){
     a_group = '#' + a_group;
     return a_group;
 }
 
-var commentOutPageNo = function(a_group){
+function commentOutPageNo(a_group){
     //console.log(a_group);
     if(a_group.match(G_XXX_PAGENO_SMALLINT) !== null){//g_pje_pageno    SMALLINT,
         a_group = '#' + a_group;
@@ -174,7 +174,7 @@ var commentOutPageNo = function(a_group){
     return a_group;
 }
 
-var commentOutCall_bpD = function(a_group){
+function commentOutCall_bpD(a_group){
     //console.log(a_group);
     if(a_group.match(CALL_XXX_BP_D) !== null){//CALL i100_bp("D")
         a_group = a_group.replace(CALL_XXX_BP_D,'');
@@ -183,17 +183,17 @@ var commentOutCall_bpD = function(a_group){
     return a_group;
 }
 
-var commentOutInsertKey = function(a_group){
+function commentOutInsertKey(a_group){
     a_group = a_group.replace(INSERT_KEY,'#INSERT KEY');
     return a_group;
 }
 
-var commentOutDeleteKey = function(a_group){
+function commentOutDeleteKey(a_group){
     a_group = a_group.replace(DELETE_KEY,'#DELETE KEY');
     return a_group;
 }
 
-var dryCleaningForLoop = function(a_group){
+function dryCleaningForLoop(a_group){
     var clearRecord;
     if(a_group.match(INITIALIZE_TO_NULL) !== null){
         clearRecord = a_group.match(INITIALIZE_TO_NULL)[0];
@@ -208,7 +208,7 @@ var dryCleaningForLoop = function(a_group){
     return a_group;
 }
 
-var _b_fillFunc = function(a_group){
+function _b_fillFunc(a_group){
     var a_groupArr =  a_group.split('\n');
     var groupStartIdx = {
         oldForLoop: 0,

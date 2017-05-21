@@ -12,14 +12,14 @@ var variables = {
     dynamicArrOfRecs: [],
 }
 
-var main = function(event){
+function main(event){
     var files = event.target.files;
     for(var i=0; i<files.length; i++){
         setUpReader(files[i],i);
     }
 }
 
-var setUpReader = function(file){
+function setUpReader(file){
     var fileName = file.name;
     
     fileCode = fileName.match(/\w{1}\d+/g)[0];
@@ -39,7 +39,7 @@ var setUpReader = function(file){
 }
 
 //逐行讀取
-var readLine = function(fileText){
+function readLine(fileText){
     var lines = fileText.split('\n');
     var linegroup = groupLines(lines);
     var newLines = [];
@@ -51,7 +51,7 @@ var readLine = function(fileText){
 }
 
 //修改每一行
-var modifyLine = function(a_group){
+function modifyLine(a_group){
     //console.log(a_line);
     var processFunctions = getProcessFunctions(a_group);
     if(processFunctions.length > 0){
@@ -63,7 +63,7 @@ var modifyLine = function(a_group){
 }
 
 //對應到要修改到function
-var getProcessFunctions = function(a_group){
+function getProcessFunctions(a_group){
     //console.log(a_group);
     var processFunctions = [];
     // if(a_group.includes('GLOBAL')){

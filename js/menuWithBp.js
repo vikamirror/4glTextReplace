@@ -9,7 +9,7 @@ var exportToExcelJudgment = {
     alreadyHasExportToExcel: false,
 };
 
-var menuWtihBpFunc = function(a_group){
+function menuWtihBpFunc(a_group){
     //console.log(a_group);
 
     var groupByCommand = a_group.split('COMMAND');//用COMMAND來分組
@@ -228,7 +228,7 @@ function getBeforeDisplay(){
     return beforeMenuString;
 }
 
-var _bpFunc = function(a_group){
+function _bpFunc(a_group){
 
     var a_groupArr =  a_group.split('\n');
 

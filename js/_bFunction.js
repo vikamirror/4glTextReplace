@@ -1,4 +1,4 @@
-var _bBeforeRow = function(a_group){
+function _bBeforeRow(a_group){
     //console.log(a_group);
     var a_groupArr = a_group.split('\n');
     var defineInsert_delete = 'DEFINE\n' + 

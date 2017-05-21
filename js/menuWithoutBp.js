@@ -1,4 +1,4 @@
-var menuWtihoutBp = function(a_group){
+function menuWtihoutBp(a_group){
     var menuHotKeyActions = {
         actionNext: '',
         actionPrevious: '',
