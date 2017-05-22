@@ -3,7 +3,7 @@ var globalCode = function(a_group){
 }
 
 var dynamicArrOfRec = function(a_group){
-    console.log('dynamicArrOfRec',a_group);
+    //console.log('dynamicArrOfRec',a_group);
     var g_record = a_group.toLowerCase().match(/\w+\_\w+/g)[0];
     variables.dynamicArrOfRecs.push(g_record);
     exportToExcelJudgment.shallAddExportToExcel = true;
@@ -139,7 +139,7 @@ var onIdle_prompt = function(a_group){
 }
 
 var l_za05Char = function(a_group){
-    a_group = a_group.replace(/CHAR\(40\)/g,'CHAR(80)');
+    a_group = a_group.replace(/CHAR\(\d+\)/g,'CHAR(80)');
     return a_group;
 }
 

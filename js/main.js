@@ -126,7 +126,7 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){
         processFunctions.push(_bpFunc);
     }
-    if(a_group.match(/l_za05\s+CHAR\(40\)/g) !== null){// l_za05 CHAR(80)
+    if(a_group.match(/l_za05\s+CHAR\(\d+\)/g) !== null){// l_za05 CHAR(80)
         processFunctions.push(l_za05Char);
     }
     if(a_group.toUpperCase().match(/G_X\s+ARRAY\[\d+\]\s+OF\s+CHAR\(\d+\)/g) !== null){
@@ -170,7 +170,7 @@ var groupLines = function(lines){
     for(var i=0; i<lines.length; i++){
         
         if(groupStartIdx.hasOpenWindow === 0){
-            if(lines[i].match(/OPEN\sWINDOW\s(\S|)+\sAT/g) !== null){//OPEN WINDOW
+            if(lines[i].match(/OPEN\s+WINDOW\s+(\S|)+\s+AT/g) !== null){//OPEN WINDOW
                 if(lines[i].match(/ATTRIBUTE/g) !== null){
                     linegroup.push(lines[i] + ' #main window');
                     //console.log('openWindow',lines[i] + ' #main window');
