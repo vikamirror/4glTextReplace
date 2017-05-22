@@ -4,6 +4,7 @@ var hasExitWhile = false;
 var addExportToExcel = false;
 var hasHideOption = false;
 var beforeMenuString = '';
+var hasDetail = false;
 var exportToExcelJudgment = {
     shallAddExportToExcel: false,
     alreadyHasExportToExcel: false,
@@ -65,6 +66,7 @@ var menuWtihBpFunc = function(a_group){
             detail = detail.replace(/END IF/g, 'ELSE LET g_action="" END IF');
             newMenu.push(detail);
             menuCommands.push('detail');
+            hasDetail = true;
             continue;
         }
         if(groupByCommand[i].match(/('|")A.\W+HELP\s\d+/g) !== null){//add
@@ -136,15 +138,20 @@ var menuWtihBpFunc = function(a_group){
             if(groupByCommand[i].match(/HELP\s+\d+/g) !== null){
                 groupByCommand[i] = groupByCommand[i].replace(/HELP\s+\d+/g,'');//如果有HELP 12345, 清除
             }
-            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,30}('|")/g)[0];
-            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,30}('|")/g, 'WHEN '+userDefined);
+            var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g)[0].trim();
+            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,22}('|")/g, 'WHEN '+userDefined);
             newMenu.push(others);
-            var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
+            var trimUserDefined = userDefined.replace(/('|")/g,'').trim();//送到ON ACTION,所以拿掉""
             menuCommands.push(trimUserDefined);
             continue;
         }
         if(groupByCommand[i].match(/KEY\(esc\)/g) !== null){//KEY(esc)
-            menuCommands.push('close');
+            if(hasDetail === true){
+                menuCommands.push('accept');
+                menuCommands.push('cancel');
+            }else{
+                menuCommands.push('close');
+            }
             continue;
         }
         if(groupByCommand[i].match(/KEY\(('|")\/('|")\)/g) !== null){//jump
@@ -275,20 +282,33 @@ var _bpFunc = function(a_group){
         var oneAction = blanks_4 +  'ON ACTION' + blanks_1 + menuCommands[i].replace(/"/g,'') + '\n';
         
         if(menuCommands[i]==='detail'){//ON ACTION controln LET l_ac=1
-            oneAction = oneAction + blanks_8 + 'LET l_ac=1 \n';
+            oneAction = oneAction + blanks_8 + 'LET l_ac = 1 \n';
         }
         if(menuCommands[i]==='close'){//ON ACTION close LET INT_FLAG=0
-            oneAction = oneAction + blanks_8 + 'LET INT_FLAG=0 \n';
+            oneAction = oneAction + blanks_8 + 'LET INT_FLAG = 0\n' + 
+                                               blanks_8 + 'LET g_action = exit\n' + blanks_8; 
+        }  
+        if(menuCommands[i] =='about'){
+            oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\n';
+        }
+        if(menuCommands[i]==='accept'){
+            oneAction = oneAction + blanks_8 + 'LET l_ac = ARR_CURR()\n' + 
+                                               blanks_8 + 'LET g_action = detail\n' + blanks_8; 
+        }
+        if(menuCommands[i]==='cancel'){
+            oneAction = oneAction + blanks_8 + 'LET INT_FLAG = FALSE\n' + 
+                                               blanks_8 + 'LET g_action = exit\n' + blanks_8; 
         }
         if(menuCommands[i]==='controlg'){
             onActionArr.push(hotKeys);//將hot-keys放在controlg上方
         }
-        if(menuCommands[i]!=='about'){//其他一般的ON ACTION
+        if(menuCommands[i] !== 'about' && menuCommands[i] !== 'accept' && menuCommands[i] !== 'cancel' && menuCommands[i] !== 'close'){
             oneAction = oneAction + blanks_8 +
-                'LET g_action=' + '"' +  ( menuCommands[i]!=='close'? menuCommands[i]:'exit' ) + '"' + '\n' + blanks_8 +
-                'EXIT DISPLAY' + '\n';
-        } else {//ON ACTION ABOUT
-            oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\n';
+                       'LET g_action=' + '"' +  menuCommands[i] + '"\n' + blanks_8;           
+        }
+        if(menuCommands[i] !=='about'){
+            var exitDisplay = 'EXIT DISPLAY\n';
+            oneAction = oneAction + exitDisplay;
         }
         onActionArr.push(oneAction);
     }

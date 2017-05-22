@@ -205,16 +205,22 @@ var commentOutDeleteKey = function(a_group){
 }
 
 var dryCleaningForLoop = function(a_group){
-    var clearRecord;
+    var clearRecord = [];
     if(a_group.match(/INITIALIZE\s+g+\w+/g) !== null){
-        clearRecord = a_group.match(/INITIALIZE\s+g+\w+/g)[0];
-        clearRecord = clearRecord.replace(/INITIALIZE/g,'');
+        var matchRecord = a_group.match(/INITIALIZE\s+\w+/g);    
+        for(var i=0; i<matchRecord.length; i++){
+            matchRecord[i] = matchRecord[i].replace(/INITIALIZE/g,'').trim();
+            clearRecord.push(matchRecord[i]);
+        }
     }
     if(a_group.match(/INITIALIZE/g) !== null && a_group.match(/TO NULL/g) !== null){
         a_group = commentOut(a_group);
         //console.log(a_group);
     }
-    a_group = a_group + '\n' + blanks_4 + 'CALL ' + clearRecord + '.clear()';
+    for(var i=0; i<clearRecord.length; i++){
+        clearRecord[i] = '\n' + blanks_4 + 'CALL ' + clearRecord[i] + '.clear()';
+    }
+    a_group = a_group + clearRecord.toString();
     //console.log(a_group);
     return a_group;
 }

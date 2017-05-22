@@ -138,7 +138,7 @@ var getProcessFunctions = function(a_group){
     if(a_group.match(/DELETE\s+KEY/g) !== null){
         processFunctions.push(commentOutDeleteKey);
     }
-    if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || a_group.match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){
+    if(a_group.match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+\w+_arrno/g) !== null || a_group.match(/FOR\s+l_ac[\s\=]+1\s+TO\s+\w+_arrno/g) !== null){
         processFunctions.push(dryCleaningForLoop);
     }
     return processFunctions;
@@ -282,7 +282,7 @@ var groupLines = function(lines){
             }
             continue;
         }
-        if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null || lines[i].match(/FOR\s+l_ac[\s\=]+1\s+TO\s+g_\w+_arrno/g) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
+        if(lines[i].match(/FOR\s+\w_cnt[\s\=]+1\s+TO\s+\w+_arrno/g) !== null || lines[i].match(/FOR\s+l_ac[\s\=]+1\s+TO\s+\w+_arrno/g) !== null){//乾洗 FOR l_xxx = 1  TO  g_xxx_arrno #單身 ARRAY 乾洗
             if(lines[i].match(/END FOR/g) !== null){//處理乾洗FOR...END FOR同一行的狀況
                 linegroup.push(lines[i]);
             } else {
