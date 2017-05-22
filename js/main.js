@@ -86,7 +86,7 @@ var getProcessFunctions = function(a_group){
     if(a_group.toLowerCase().match(/arrow/g) !== null){
         processFunctions.push(commentOutArrow);
     }
-    if(a_group.match(/g_\w+_pageno/g) !== null){
+    if(a_group.match(/\w+_pageno/g) !== null){
         processFunctions.push(commentOutPageNo);
     }
     if(a_group.match(/CALL\s+\w+_bp\(('|")D('|")\)/g) !== null){

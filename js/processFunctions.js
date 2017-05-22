@@ -155,11 +155,11 @@ var commentOutKeyBoardCtrl = function(a_group){
 
 var commentOutPageNo = function(a_group){
     //console.log(a_group);
-    if(a_group.match(/g_\w+_pageno\s+SMALLINT/g) !== null){//g_pje_pageno    SMALLINT,
+    if(a_group.match(/\w+_pageno\s+SMALLINT/g) !== null){//g_pje_pageno    SMALLINT,
         a_group = '#' + a_group;
     }
-    if(a_group.match(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g) !== null){//LET g_bmp2_pageno = 0 || 1
-        a_group = a_group.replace(/LET\s+g_\w+_pageno(\s+|)=(\s+|)(1|0)/g,'');
+    if(a_group.match(/LET\s+\w+_pageno(\s+|)=(\s+|)(1|0)/g) !== null){//LET g_bmp2_pageno = 0 || 1
+        a_group = a_group.replace(/LET\s+\w+_pageno(\s+|)=(\s+|)(1|0)/g,'');
     }
     // var pageNoArr = a_group.match(/LET\s+g_\w+_pageno[\s\=]+0/g);
     // for(var i=0; i<pageNoArr.length; i++){
