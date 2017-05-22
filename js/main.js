@@ -52,7 +52,6 @@ function readLine(fileText){
 
 //修改每一行
 function modifyLine(a_group){
-    //console.log(a_line);
     var processFunctions = getProcessFunctions(a_group);
     if(processFunctions.length > 0){
         for(var i=0;i<processFunctions.length;i++){
@@ -152,7 +151,7 @@ function groupLines(lines){
     function clearTheLastItem(regex){
         linegroup[linegroup.length-1] = linegroup[linegroup.length-1].replace(regex, '');
     }
-   //console.log(lines);
+    //console.log(lines);
     for(var i=0; i<lines.length; i++){
         if(groupStartIdx.hasOpenWindow === false){
             if(lines[i].match(OPEN_WINDOW_AT) !== null){//OPEN WINDOW
@@ -169,6 +168,7 @@ function groupLines(lines){
             if(lines[i].match(ATTRIBUTE) !== null){
                 var openWindow = pushGroup(lines, groupStartIdx.startOpenWindow, i);
                 linegroup.push(openWindow + mainWindowTag);
+                //console.log(openWindow);
                 groupStartIdx.startOpenWindow = 0;
                 groupStartIdx.hasOpenWindow = true;
             }
@@ -297,6 +297,7 @@ function groupLines(lines){
         }
         linegroup.push(lines[i]);
     }
+    //console.log(linegroup);
     return linegroup;
 }
 
