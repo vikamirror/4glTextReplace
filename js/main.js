@@ -132,6 +132,9 @@ var getProcessFunctions = function(a_group){
     if(a_group.toUpperCase().match(/G_X\s+ARRAY\[\d+\]\s+OF\s+CHAR\(\d+\)/g) !== null){
         processFunctions.push(l_za05Char);
     }
+    if(a_group.match(/ima02[\w\s]+CHAR\(\d+\)/g) !== null){// ima02 CHAR(80)
+        processFunctions.push(ima02Char);
+    }
     if(a_group.match(/INSERT\s+KEY/g) !== null){
         processFunctions.push(commentOutInsertKey);
     }

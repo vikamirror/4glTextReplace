@@ -148,6 +148,11 @@ var g_xChar = function(a_group){
     return a_group;
 }
 
+var ima02Char = function(a_group){
+    a_group = a_group.replace(/CHAR\(\d+\)/g,'CHAR(60)');
+    return a_group;
+}
+
 var commentOutKeyBoardCtrl = function(a_group){
     a_group = '#' + a_group;
     return a_group;

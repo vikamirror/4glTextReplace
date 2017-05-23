@@ -286,14 +286,14 @@ var _bpFunc = function(a_group){
         }
         if(menuCommands[i]==='close'){//ON ACTION close LET INT_FLAG=0
             oneAction = oneAction + blanks_8 + 'LET INT_FLAG = 0\n' + 
-                                               blanks_8 + 'LET g_action = exit\n' + blanks_8; 
+                                    blanks_8 + 'LET g_action = exit\n' + blanks_8; 
         }  
         if(menuCommands[i] =='about'){
             oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\n';
         }
         if(menuCommands[i]==='accept'){
             oneAction = oneAction + blanks_8 + 'LET l_ac = ARR_CURR()\n' + 
-                                               blanks_8 + 'LET g_action = detail\n' + blanks_8; 
+                                    blanks_8 + 'LET g_action = detail\n' + blanks_8; 
         }
         if(menuCommands[i]==='cancel'){
             oneAction = oneAction + blanks_8 + 'LET INT_FLAG = FALSE\n' + 
