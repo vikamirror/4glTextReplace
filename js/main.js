@@ -34,9 +34,8 @@ var setUpReader = function(file){
         
         console.log(fileText_after);
         clearData();
-        //initRequestFileSystem(fileCode,fileText_after);
         var mimeType = mimeType || 'application/octet-stream';
-        //download(fileName, fileText_after, mimeType);
+        download(fileName, fileText_after, mimeType);
     }
 }
 
@@ -120,7 +119,7 @@ var getProcessFunctions = function(a_group){
             processFunctions.push(menuWtihoutBp);
         }
     }
-    if(a_group.match(/FUNCTION \w+_b\(/g) !== null){
+    if(a_group.match(/FUNCTION \w+_b\(/g) !== null && a_group.match(/FUNCTION \w+_g_b\(/g) === null){
         processFunctions.push(_bBeforeRow);
     }
     if(a_group.match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){
@@ -238,8 +237,8 @@ var groupLines = function(lines){
             }
             continue;
         }
-        if(lines[i].match(/FUNCTION \w+_b\(/g) !== null) {//_b Define
-            groupStartIdx._bDefine = i;
+        if(lines[i].match(/FUNCTION \w+_b\(/g) !== null && lines[i].match(/FUNCTION \w+_g_b\(/g) === null) {//_b Define
+            groupStartIdx._bDefine = i;//排除t系列程式有_g_b的狀況
             continue;
         }
         if(groupStartIdx._bDefine !== 0){
@@ -319,20 +318,6 @@ var groupLines = function(lines){
             linegroup.push(lines[i]);
             continue;
         }
-        // if(lines[i].match(/INSERT\s+KEY\s+F1/g) !== null){//OPTIONS INSERT KEY F1, DELETE KEY F2
-        //     linegroup[linegroup.length-1] = '';
-        //     groupStartIdx.insertDeleteOptions = i-1;
-        //     continue;
-        // }
-        // if(groupStartIdx.insertDeleteOptions !== 0){//OPTIONS INSERT KEY F1, DELETE KEY F2
-        //     if(lines[i].match(/DELETE\s+KEY\s+F2/g) !== null){
-        //         var options = pushGroup(lines, groupStartIdx.insertDeleteOptions, i);
-        //         //console.log(options);
-        //         linegroup.push(options);
-        //         groupStartIdx.insertDeleteOptions = 0;
-        //     }
-        //     continue;
-        // }
         linegroup.push(lines[i]);
     } 
     return linegroup;

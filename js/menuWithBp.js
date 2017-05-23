@@ -293,11 +293,11 @@ var _bpFunc = function(a_group){
         }
         if(menuCommands[i]==='accept'){
             oneAction = oneAction + blanks_8 + 'LET l_ac = ARR_CURR()\n' + 
-                                    blanks_8 + 'LET g_action = detail\n' + blanks_8; 
+                                    blanks_8 + 'LET g_action="detail"\n' + blanks_8; 
         }
         if(menuCommands[i]==='cancel'){
             oneAction = oneAction + blanks_8 + 'LET INT_FLAG = FALSE\n' + 
-                                               blanks_8 + 'LET g_action = exit\n' + blanks_8; 
+                                               blanks_8 + 'LET g_action="exit"\n' + blanks_8; 
         }
         if(menuCommands[i]==='controlg'){
             onActionArr.push(hotKeys);//將hot-keys放在controlg上方
