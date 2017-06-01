@@ -177,9 +177,11 @@ var menuWtihoutBp = function(a_group){
             continue;
         }
         if(groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g) !== null){//其它
+            groupByCommand[i] = cleanHelp(groupByCommand[i]);
             var userDefined = blanks_4 + groupByCommand[i].match(/('|")[\d\w]+\.\D{1,22}('|")/g)[0];
-            var trimUserDefined = userDefined.replace(/('|")/g,'');//送到ON ACTION,所以拿掉""
-            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,22}('|")/g, 'ON ACTION '+trimUserDefined);
+            var trimUserDefined = userDefined.replace(/('|")/g,'').trim();//送到ON ACTION,所以拿掉""
+            var userDefined_g_action = trimUserDefined + '\n' + blanks_12 + 'LET g_action="' + trimUserDefined + '"\n';
+            var others = blanks_4 + groupByCommand[i].replace(/('|")[\d\w]+\.\D{1,22}('|")/g, 'ON ACTION '+userDefined_g_action);
             newMenu.push(others);
             continue;
         }

@@ -35,7 +35,7 @@ var setUpReader = function(file){
         console.log(fileText_after);
         clearData();
         var mimeType = mimeType || 'application/octet-stream';
-        download(fileName, fileText_after, mimeType);
+        //download(fileName, fileText_after, mimeType);
     }
 }
 

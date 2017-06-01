@@ -39,7 +39,7 @@ var g_langCase = function(a_group){
 var openWindow = function(a_group){
     var cl_ui_init = '\n' + blanks_4 + 'CALL cl_ui_init()' + '\n';
     a_group = a_group.replace(/#main window/g,'');
-    a_group = a_group.replace(/ATTRIBUTE\(\S+\)/g, '#ATTRIBUTE' + cl_ui_init);
+    a_group = a_group.replace(/ATTRIBUTE\([\S\s]+\)/g, '#ATTRIBUTE' + cl_ui_init);
     //console.log(a_group);
     return a_group;
 }
@@ -78,21 +78,21 @@ var commentOutAttr = function(a_group){
 }
 
 var onKey_onAction = function(a_group){
-    if(a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
-        var onKeyControl = a_group.toUpperCase().match(/ON KEY\(CONTROL-\w\)/g)[0];
+    if(a_group.toUpperCase().match(/ON KEY(\s|)\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
+        var onKeyControl = a_group.toUpperCase().match(/ON KEY(\s|)\(CONTROL-\w\)/g)[0];
         var onKeyControl = onKeyControl.toUpperCase();
         var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
         //console.log(commandKey);
         commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
         commandKey = commandKey.replace(/\)/g,'');
         //console.log(commandKey);
-        a_group = a_group.replace(/ON KEY\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
-        a_group = a_group.replace(/ON KEY\(control-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(/ON KEY(\s|)\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(/ON KEY(\s|)\(control-\w\)/g,'ON ACTION ' + commandKey);
     }
     
-    if(a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g) !== null){//ON KEY(F12)
+    if(a_group.toUpperCase().match(/ON\s+KEY(\s|)\(F\d+\)/g) !== null){//ON KEY(F12)
         var onKeyF = a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g)[0];
-        a_group = a_group.replace(/ON\s+KEY\(F\d+\)/g, '#'+onKeyF);
+        a_group = a_group.replace(/ON\s+KEY(\s|)\(F\d+\)/g, '#'+onKeyF);
     }
     return a_group;
 }

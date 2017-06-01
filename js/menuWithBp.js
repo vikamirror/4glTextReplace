@@ -182,7 +182,7 @@ var menuWtihBpFunc = function(a_group){
             }
             controln = commentOut(controln);//controln在大多數情況要註解
             newMenu.push(controln);
-            //menuCommands.push('controln');
+            menuCommands.push('controln');
             continue;
         }
         if(groupByCommand[i].toLowerCase().match(/key\(control\-g\)/g) !== null){//熱鍵controlg
@@ -286,7 +286,7 @@ var _bpFunc = function(a_group){
         }
         if(menuCommands[i]==='close'){//ON ACTION close LET INT_FLAG=0
             oneAction = oneAction + blanks_8 + 'LET INT_FLAG = 0\n' + 
-                                    blanks_8 + 'LET g_action = exit\n' + blanks_8; 
+                                    blanks_8 + 'LET g_action="exit"\n' + blanks_8; 
         }  
         if(menuCommands[i] =='about'){
             oneAction = oneAction + blanks_8 + 'CALL SHOWHELP(1)' + '\n';
