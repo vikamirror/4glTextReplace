@@ -247,6 +247,11 @@ var groupLines = function(lines){
                linegroup.push(_bHead);
                groupStartIdx._bDefine = 0;
             }
+            if(lines[i].match(/END FUNCTION/g) !== null){//END FUNCTION 避免沒有BEFORE ROW而繼續向後截斷
+                var _bWhole = pushGroup(lines, groupStartIdx._bDefine, i);
+                linegroup.push(_bWhole);
+                groupStartIdx._bDefine = 0;
+            }
             continue;
         }
         if(lines[i].match(/FUNCTION\s+\w+\_bp\(\w+\)/g) !== null){//bp

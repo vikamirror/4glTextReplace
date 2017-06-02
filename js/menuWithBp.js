@@ -180,7 +180,7 @@ var menuWtihBpFunc = function(a_group){
             }else{
                 controln = controln + '\n' + blanks_8 + callAskKey;//如果controln裡面沒有call_xxx_bp("D")
             }
-            controln = commentOut(controln);//controln在大多數情況要註解
+            //controln = commentOut(controln);
             newMenu.push(controln);
             menuCommands.push('controln');
             continue;
@@ -271,7 +271,7 @@ var _bpFunc = function(a_group){
         var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
         hotKey = hotKey + blanks_8 +
                 'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
-                'EXIT DISPLAY' + '\n';
+                'ACCEPT DISPLAY' + '\n';
         hotKeyArr.push(hotKey);
     }
     var hotKeys = hotKeyArr.join('\n');
