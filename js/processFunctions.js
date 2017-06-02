@@ -78,21 +78,21 @@ var commentOutAttr = function(a_group){
 }
 
 var onKey_onAction = function(a_group){
-    if(a_group.toUpperCase().match(/ON KEY(\s|)\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
-        var onKeyControl = a_group.toUpperCase().match(/ON KEY(\s|)\(CONTROL-\w\)/g)[0];
+    if(a_group.toUpperCase().match(/ON KEY(\s+|)\(CONTROL-\w\)/g) !== null){//ON KEY(CONTROL-X)
+        var onKeyControl = a_group.toUpperCase().match(/ON KEY(\s+|)\(CONTROL-\w\)/g)[0];
         var onKeyControl = onKeyControl.toUpperCase();
         var commandKey = onKeyControl.match(/\(CONTROL-\w\)/g)[0];
         //console.log(commandKey);
         commandKey = commandKey.replace(/\(CONTROL-/g,'CONTROL');
         commandKey = commandKey.replace(/\)/g,'');
         //console.log(commandKey);
-        a_group = a_group.replace(/ON KEY(\s|)\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
-        a_group = a_group.replace(/ON KEY(\s|)\(control-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(/ON KEY(\s+|)\(CONTROL-\w\)/g,'ON ACTION ' + commandKey);
+        a_group = a_group.replace(/ON KEY(\s+|)\(control-\w\)/g,'ON ACTION ' + commandKey);
     }
     
-    if(a_group.toUpperCase().match(/ON\s+KEY(\s|)\(F\d+\)/g) !== null){//ON KEY(F12)
-        var onKeyF = a_group.toUpperCase().match(/ON\s+KEY\(F\d+\)/g)[0];
-        a_group = a_group.replace(/ON\s+KEY(\s|)\(F\d+\)/g, '#'+onKeyF);
+    if(a_group.toUpperCase().match(/ON\s+KEY(\s+|)\(F\d+\)/g) !== null){//ON KEY(F12)
+        var onKeyF = a_group.toUpperCase().match(/ON\s+KEY(\s+|)\(F\d+\)/g)[0];
+        a_group = a_group.replace(/ON\s+KEY(\s+|)\(F\d+\)/g, '#'+onKeyF);
     }
     return a_group;
 }
