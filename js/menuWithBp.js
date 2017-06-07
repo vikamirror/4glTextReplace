@@ -9,6 +9,13 @@ var exportToExcelJudgment = {
     shallAddExportToExcel: false,
     alreadyHasExportToExcel: false,
 };
+var hotKeyCallFunctions = {
+    first: '',
+    previous: '',
+    jump: '',
+    next: '',
+    last: ''
+}
 
 var menuWtihBpFunc = function(a_group){
     //console.log(a_group);
@@ -107,14 +114,22 @@ var menuWtihBpFunc = function(a_group){
             continue;
         }
         if(groupByCommand[i].match(/('|")N.\W+HELP\s\d+/g) !== null){//next
-            var next = blanks_4 + groupByCommand[i].replace(/('|")N.\W+HELP\s\d+/g, 'WHEN "next"');
-            newMenu.push(next);
+            //var next = blanks_4 + groupByCommand[i].replace(/('|")N.\W+HELP\s\d+/g, 'WHEN "next"');
+            //newMenu.push(next);
+            if(groupByCommand[i].match(/CALL\s+\S+/g) !== null){
+                var callFunction = groupByCommand[i].match(/CALL\s+\S+/g)[0];
+                hotKeyCallFunctions.next = callFunction;
+            }
             menuHotKeys.push('next');
             continue;
         }
         if(groupByCommand[i].match(/('|")P.\W+HELP\s\d+/g) !== null){//previous
-            var previous = blanks_4 + groupByCommand[i].replace(/('|")P.\W+HELP\s\d+/g, 'WHEN "previous"');
-            newMenu.push(previous);
+            //var previous = blanks_4 + groupByCommand[i].replace(/('|")P.\W+HELP\s\d+/g, 'WHEN "previous"');
+            //newMenu.push(previous);
+            if(groupByCommand[i].match(/CALL\s+\S+/g) !== null){
+                var callFunction = groupByCommand[i].match(/CALL\s+\S+/g)[0];
+                hotKeyCallFunctions.previous = callFunction;
+            }
             menuHotKeys.push('previous');
             continue;
         }
@@ -155,20 +170,26 @@ var menuWtihBpFunc = function(a_group){
             continue;
         }
         if(groupByCommand[i].match(/KEY\(('|")\/('|")\)/g) !== null){//jump
-            var jump = blanks_4 + groupByCommand[i].replace(/KEY\(('|")\/('|")\)/g, 'WHEN "jump"');
-            newMenu.push(jump);
+            if(groupByCommand[i].match(/CALL\s+\S+/g) !== null){
+                var callFunction = groupByCommand[i].match(/CALL\s+\S+/g)[0];
+                hotKeyCallFunctions.jump = callFunction;
+            }
             menuHotKeys.push('jump');
             continue;
         }
         if(groupByCommand[i].match(/KEY\(F\)/g) !== null){//熱鍵first
-            var first = blanks_4 + groupByCommand[i].replace(/KEY\(F\)/g, 'WHEN "first"');
-            newMenu.push(first);
+            if(groupByCommand[i].match(/CALL\s+\S+/g) !== null){
+                var callFunction = groupByCommand[i].match(/CALL\s+\S+/g)[0];
+                hotKeyCallFunctions.first = callFunction;
+            }
             menuHotKeys.push('first');
             continue;
         }
         if(groupByCommand[i].match(/KEY\(L\)/g) !== null){//熱鍵last
-            var last = blanks_4 + groupByCommand[i].replace(/KEY\(L\)/g, 'WHEN "last"');
-            newMenu.push(last);
+            if(groupByCommand[i].match(/CALL\s+\S+/g) !== null){
+                var callFunction = groupByCommand[i].match(/CALL\s+\S+/g)[0];
+                hotKeyCallFunctions.last = callFunction;
+            }
             menuHotKeys.push('last');
             continue;
         }
@@ -269,9 +290,22 @@ var _bpFunc = function(a_group){
     var hotKeyArr = [];
     for(var i=0; i<menuHotKeys.length; i++){
         var hotKey = blanks_4 +  'ON ACTION' + blanks_1 + menuHotKeys[i].replace(/"/g,'') + '\n';
-        hotKey = hotKey + blanks_8 +
-                'LET g_action=' + '"' +  menuHotKeys[i] + '"' + '\n' + blanks_8 +
-                'ACCEPT DISPLAY' + '\n';
+        if(menuHotKeys[i] == 'next'){
+            hotKey = hotKey + blanks_8 + hotKeyCallFunctions.next + '\n';
+        }
+        if(menuHotKeys[i] == 'previous'){
+            hotKey = hotKey + blanks_8 + hotKeyCallFunctions.previous + '\n';
+        }
+        if(menuHotKeys[i] == 'jump'){
+            hotKey = hotKey + blanks_8 + hotKeyCallFunctions.jump + '\n';
+        }
+        if(menuHotKeys[i] == 'first'){
+            hotKey = hotKey + blanks_8 + hotKeyCallFunctions.first + '\n';
+        }
+        if(menuHotKeys[i] == 'last'){
+            hotKey = hotKey + blanks_8 + hotKeyCallFunctions.last + '\n';
+        }
+        hotKey = hotKey + blanks_8 + 'ACCEPT DISPLAY' + '\n';
         hotKeyArr.push(hotKey);
     }
     var hotKeys = hotKeyArr.join('\n');
